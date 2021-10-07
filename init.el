@@ -44,7 +44,7 @@
 (load "init-flycheck.el")
 
 (global-linum-mode)
-
+(setq backup-directory-alist `(("." . "~/.saves")))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
