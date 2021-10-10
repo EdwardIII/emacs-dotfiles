@@ -31,7 +31,12 @@
     cider
 
     flycheck
-    ))
+
+    magit
+    
+    which-key
+
+    smex))
 
 (dolist (p my-packages)
   (when (not (package-installed-p p))
@@ -42,6 +47,10 @@
 (load "sexpers.el")
 (load "clipboard.el")
 (load "init-flycheck.el")
+(global-set-key (kbd "M-x") 'smex)
+(global-set-key (kbd "M-X") 'smex-major-mode-commands)
+  ;; This is your old M-x.
+(which-key-mode)
 
 (global-linum-mode)
 (setq backup-directory-alist `(("." . "~/.saves")))
