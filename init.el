@@ -48,6 +48,7 @@
 
     ivy
 
+    forge
     ))
 
 (dolist (p my-packages)
@@ -61,6 +62,10 @@
 (load "init-flycheck.el")
 (load "init-shell.el")
 (load "init-tide")
+
+;;(with-eval-after-load 'magit
+;;  (require 'forge))
+;;(setq auth-sources '("~/.authinfo"))
 
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
