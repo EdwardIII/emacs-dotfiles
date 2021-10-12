@@ -23,6 +23,8 @@
   ;;  https://github.com/sellout/emacs-color-theme-solarized
   ;; Cheatsheet: http://www.emacswiki.org/emacs/PareditCheatsheet
   '(paredit
+    exec-path-from-shell
+    
     clojure-mode
 
     ;; extra syntax highlighting for clojure
@@ -36,7 +38,17 @@
     
     which-key
 
-    smex))
+    smex
+
+    projectile
+
+    tide
+
+    counsel
+
+    ivy
+
+    ))
 
 (dolist (p my-packages)
   (when (not (package-installed-p p))
@@ -47,13 +59,36 @@
 (load "sexpers.el")
 (load "clipboard.el")
 (load "init-flycheck.el")
+(load "init-shell.el")
+(load "init-tide")
+
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
-  ;; This is your old M-x.
 (which-key-mode)
+(set-face-attribute 'default nil :height 140)
+
+(ivy-mode)
+(setq ivy-use-virtual-buffers t)
+(setq ivy-count-format "(%d/%d) ")
+(global-set-key (kbd "C-s") 'swiper-isearch)
+
+(counsel-mode)
+
+(global-set-key (kbd "C-c g") 'counsel-git)
+(global-set-key (kbd "C-c j") 'counsel-git-grep)
+(global-set-key (kbd "C-c k") 'counsel-ag)
+
+(setq js-indent-level 2)
+
+(projectile-mode +1)
+;; Recommended keymap prefix on macOS
+(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
 
 (global-linum-mode)
 (setq backup-directory-alist `(("." . "~/.saves")))
+(setq inhibit-startup-screen t)
+(blink-cursor-mode 0)
+(setq ring-bell-function 'ignore)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.

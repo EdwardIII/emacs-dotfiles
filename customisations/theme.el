@@ -7,6 +7,8 @@
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/emacs-color-theme-solarized/")
 (load-theme 'solarized t)
 (set-terminal-parameter nil 'background-mode 'dark)
+(set-frame-parameter nil 'background-mode 'dark)
+
 (enable-theme 'solarized)
 
 (provide 'theme)

@@ -2,3 +2,6 @@ elpa/
 games/
 init.el~
 *~
+transient/
+projectile-bookmarks.eld
+recentf
