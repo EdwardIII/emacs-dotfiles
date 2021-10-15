@@ -12,7 +12,7 @@
 (let ((credentials (nth 0 (auth-source-search :max 1
 					      :port erc-port
 					      :require '(:user :secret :port :host)))))
-  (set 'znc-servers
+  (setq znc-servers
        `((,(plist-get credentials :host) ,erc-port t
   	  ((libera ,(plist-get credentials :user)
   		   ,(decode-password credentials)))))))
