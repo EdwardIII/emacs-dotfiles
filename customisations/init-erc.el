@@ -1,16 +1,3 @@
-;;; init-erc.el --- Pulls credentials from ~/.authinfo and sets up znc-servers  -*- lexical-binding: t; -*-
-
-;; Copyright (C) 2021  Edward Prendergast
-
-;; Author: Edward Prendergast;;; init-erc.el --- Configure znc.el                 -*- lexical-binding: t; -*- <edward@EddBook.local>
-
-;;; Code:
-
-
-;; Copyright (C) 2021  Edward Prendergast
-
-;; Author: Edward Prendergast(require 'auth-source) <edward@EddBook.local>
-
 (require 'znc)
 
 ;; assumes you use port 1337 for your bnc
