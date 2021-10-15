@@ -1,4 +1,5 @@
 ;;; init.el --- Initialization file for Emac.
+
 ;;; Commentary:
 ;;; Emacs Startup File --- initialization for Emacs
 
@@ -6,23 +7,20 @@
 
 (require 'package)
 
-;; Add melpa package source when using package list
-(add-to-list 'package-archives
-             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-
-;; Load emacs packages and activate them
-;; This must come before configurations of installed packages.
-;; Don't delete this line.
-(package-initialize)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+;; cider is broken for us in daily, so get that from stable
+(add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
 
 (when (not package-archive-contents)
   (package-refresh-contents))
 
 (defvar my-packages
-  ;; Download this one manually and put it in ~/.emacs.d/themes/
+  ;; Download the theme manually and put it in ~/.emacs.d/themes/
   ;;  https://github.com/sellout/emacs-color-theme-solarized
-  ;; Cheatsheet: http://www.emacswiki.org/emacs/PareditCheatsheet
+  
   '(paredit
+
     exec-path-from-shell
     
     clojure-mode
@@ -43,17 +41,23 @@
     projectile
 
     tide
-
+    company
+ 
     counsel
 
     ivy
 
     forge
-    ))
+
+    ng2-mode
+
+    znc))
 
 (dolist (p my-packages)
-  (when (not (package-installed-p p))
-    (package-install p)))
+    (when (not (package-installed-p p))
+      (package-install p)))
+
+(package-initialize)
 
 (add-to-list 'load-path "~/.emacs.d/customisations")
 (load "theme.el")
@@ -61,11 +65,16 @@
 (load "clipboard.el")
 (load "init-flycheck.el")
 (load "init-shell.el")
-(load "init-tide")
+(load "init-tide.el")
 
-;;(with-eval-after-load 'magit
-;;  (require 'forge))
-;;(setq auth-sources '("~/.authinfo"))
+(load "init-erc.el")
+
+(with-eval-after-load 'magit
+  (require 'forge)
+  (setq auth-sources '("~/.authinfo"))
+  (setq forge-add-pullreq-refspec 'ask forge-pull-notifications t
+                 forge-topic-list-limit '(60 . 0)))
+
 
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
@@ -84,29 +93,59 @@
 (global-set-key (kbd "C-c k") 'counsel-ag)
 
 (setq js-indent-level 2)
+(global-set-key (kbd "C-<return>") 'set-mark-command)
+
 
 (projectile-mode +1)
 ;; Recommended keymap prefix on macOS
 (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+(projectile-register-project-type 'npm '("package.json")
+                                  :project-file "package.json"
+				  :compile "npm install"
+				  :test "npm test"
+				  :run "npm start"
+				  :test-suffix ".spec.ts")
+
 
 (global-linum-mode)
-(setq backup-directory-alist `(("." . "~/.saves")))
+
+(setq backup-directory-alist
+          `((".*" . ,(concat user-emacs-directory "backups/"))))
+(setq auto-save-file-name-transforms
+      `((".*" ,(concat user-emacs-directory "backups/") t)))
+
 (setq inhibit-startup-screen t)
 (blink-cursor-mode 0)
 (setq ring-bell-function 'ignore)
+
+(setq ediff-split-window-function 'split-window-sensibly)
+(setq ediff-ignore-similar-regions t)
+
+(setq mac-command-modifier 'control)
+(setq mac-control-modifier 'super)
+
+
+;; I don't want ng2-ts-mode, only ng2-html-mode, so I force typescript-mode
+;; to stop ng2-ts-mode from taking over .ts files
+
+(add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
+
+(add-hook 'prog-mode-hook
+          (defun before-ng2-ts-mode()
+            (when (eq major-mode 'ng2-ts-mode)
+              (typescript-mode))))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages '(clojure-mode-extra-font-locking paredit cider)))
+ '(package-selected-packages '(znc clojure-mode-extra-font-locking paredit cider)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
 (provide 'init)
 ;;; init.el ends here
