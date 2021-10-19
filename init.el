@@ -51,7 +51,11 @@
 
     ng2-mode
 
-    znc))
+    znc
+
+    bufler
+
+    erc-hl-nicks))
 
 (dolist (p my-packages)
     (when (not (package-installed-p p))
@@ -95,6 +99,7 @@
 (setq js-indent-level 2)
 (global-set-key (kbd "C-<return>") 'set-mark-command)
 
+(global-set-key (kbd "C-x C-b") 'bufler)
 
 (projectile-mode +1)
 ;; Recommended keymap prefix on macOS
@@ -116,7 +121,6 @@
 
 (setq inhibit-startup-screen t)
 (blink-cursor-mode 0)
-(setq ring-bell-function 'ignore)
 
 (setq ediff-split-window-function 'split-window-sensibly)
 (setq ediff-ignore-similar-regions t)
@@ -124,6 +128,40 @@
 (setq mac-command-modifier 'control)
 (setq mac-control-modifier 'super)
 
+
+;; UI tweaks
+
+(unless (eq window-system 'ns)
+  (menu-bar-mode -1))
+(when (fboundp 'tool-bar-mode)
+  (tool-bar-mode -1))
+(when (fboundp 'scroll-bar-mode)
+  (scroll-bar-mode -1))
+(when (fboundp 'horizontal-scroll-bar-mode)
+  (horizontal-scroll-bar-mode -1))
+
+(autoload 'zap-up-to-char "misc"
+  "Kill up to, but not including ARGth occurrence of CHAR." t)
+
+(global-set-key (kbd "M-z") 'zap-up-to-char)
+
+(windmove-default-keybindings)
+
+(winner-mode)
+
+(global-set-key (kbd "C-s") 'isearch-forward-regexp)
+(global-set-key (kbd "C-r") 'isearch-backward-regexp)
+(global-set-key (kbd "C-M-s") 'isearch-forward)
+(global-set-key (kbd "C-M-r") 'isearch-backward)
+
+(setq-default indent-tabs-mode nil)
+(setq save-interprogram-paste-before-kill t
+      apropos-do-all t
+      require-final-newline t
+      ;visible-bell t
+      load-prefer-newer t
+      ediff-window-setup-function 'ediff-setup-windows-plain
+      custom-file (expand-file-name "~/.emacs.d/custom.el"))
 
 ;; I don't want ng2-ts-mode, only ng2-html-mode, so I force typescript-mode
 ;; to stop ng2-ts-mode from taking over .ts files
@@ -135,17 +173,5 @@
             (when (eq major-mode 'ng2-ts-mode)
               (typescript-mode))))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages '(znc clojure-mode-extra-font-locking paredit cider)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
 (provide 'init)
 ;;; init.el ends here
