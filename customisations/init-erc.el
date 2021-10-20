@@ -10,19 +10,40 @@
 ;; (setq eval-expression-print-level 9999)
 
 (let ((credentials (nth 0 (auth-source-search :max 1
-					      :port erc-port
-					      :require '(:user :secret :port :host)))))
+                                              :port erc-port
+                                              :require '(:user :secret :port :host)))))
   (setq znc-servers
        `((,(plist-get credentials :host) ,erc-port t
-  	  ((libera ,(plist-get credentials :user)
-  		   ,(decode-password credentials)))))))
+          ((libera ,(plist-get credentials :user)
+                   ,(decode-password credentials)))))))
 
 
+(defun erc-mac-notifications-notify (nick msg &optional privp)
+  "Notify that NICK send some MSG via AppleScript."
+    (ns-do-applescript
+     (concat "display notification \"" (oz/escape-applescript msg)
+             "\" with title \"" (oz/escape-applescript nick) "\"")))
+
+(advice-add 'erc-notifications-notify :override 'erc-mac-notifications-notify)
+
+(defun oz/escape-applescript (str)
+  "Quote \\ and \"."
+  (let ((len (length str)) (i 0) (q "") char)
+    (while (< i len)
+      (setq char (substring str i (1+ i))
+            i (1+ i))
+      (when (or (string= char "\\") (string= char "\""))
+        (setq q (concat q "\\")))
+      (setq q (concat q char)))
+    q))
 
 (require 'erc)
 (require 'erc-highlight-nicknames)
+(require 'erc-desktop-notifications)
 
 (setq erc-modules '(
+  notifications
+  notify
   highlight-nicknames
   autojoin
   button
@@ -45,17 +66,18 @@
 
 (erc-update-modules)
 
-(setq erc-hide '("JOIN" "PART" "QUIT"))
+(setq erc-hide-list '("JOIN" "PART" "QUIT"))
 (setq erc-kill-buffer-on-part t)
+(setq erc-prompt (lambda () (concat "[" (buffer-name) "]")))
 
 ;;; Low distraction mode
 (defadvice erc-track-find-face (around erc-track-find-face-promote-query activate)
-  (if (erc-query-buffer-p) 
+  (if (erc-query-buffer-p)
       (setq ad-return-value (intern "erc-current-nick-face"))
     ad-do-it))
 
 (setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE" "TOPIC"
-                                    "324" "329" "332" "333" "353" "477"))
+                                    "301" "305" "306" "324" "329" "332" "333" "353" "477"))
 (setq erc-track-use-faces t)
 (setq erc-track-faces-priority-list
       '(erc-current-nick-face erc-keyword-face))
@@ -77,6 +99,7 @@
                                       erc-notice-face
                                       erc-prompt-face))
 ;;; End Low distraction mode
+
 
 (provide 'init-erc)
 ;;; init-erc.el ends here
