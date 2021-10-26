@@ -1,6 +1,6 @@
 (require 'znc)
 
-;; assumes you use port 1337 for your bnc
+;; Assumes you use port 1337 for your bnc
 (setq-local erc-port "1337")
 
 (defun decode-password (credentials)
@@ -45,6 +45,7 @@
   notifications
   notify
   highlight-nicknames
+  
   autojoin
   button
   completion
@@ -65,6 +66,7 @@
   ))
 
 (erc-update-modules)
+(erc-spelling-mode 1)
 
 (setq erc-hide-list '("JOIN" "PART" "QUIT"))
 (setq erc-kill-buffer-on-part t)
@@ -77,7 +79,7 @@
     ad-do-it))
 
 (setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE" "TOPIC"
-                                    "301" "305" "306" "324" "329" "332" "333" "353" "477"))
+                                      "324" "329" "332" "333" "353" "477"))
 (setq erc-track-use-faces t)
 (setq erc-track-faces-priority-list
       '(erc-current-nick-face erc-keyword-face))

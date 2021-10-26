@@ -6,3 +6,5 @@ transient/
 projectile-bookmarks.eld
 recentf
 network-security.data
+/backups/
+/eshell/

@@ -55,7 +55,10 @@
 
     bufler
 
-    erc-hl-nicks))
+    erc-hl-nicks
+
+    json-mode
+    ))
 
 (dolist (p my-packages)
     (when (not (package-installed-p p))
@@ -148,6 +151,12 @@
 (windmove-default-keybindings)
 
 (winner-mode)
+
+(add-hook 'json-mode-hook #'flycheck-mode)
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((dot . t)))
 
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
 (global-set-key (kbd "C-r") 'isearch-backward-regexp)
