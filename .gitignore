@@ -8,3 +8,5 @@ recentf
 network-security.data
 /backups/
 /eshell/
+projectile.cache
+tramp

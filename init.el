@@ -1,4 +1,4 @@
-;;; init.el --- Initialization file for Emac.
+;;; init.el --- Initialization file for Emac.  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;;; Emacs Startup File --- initialization for Emacs
@@ -18,53 +18,41 @@
 (defvar my-packages
   ;; Download the theme manually and put it in ~/.emacs.d/themes/
   ;;  https://github.com/sellout/emacs-color-theme-solarized
+  ;; Must `brew install mu fetchmail` for email support separately
   
   '(paredit
-
     exec-path-from-shell
-    
     clojure-mode
-
     ;; extra syntax highlighting for clojure
     ;; clojure-mode-extra-font-locking
- 
     cider
-
     flycheck
-
     magit
-    
     which-key
-
     smex
-
     projectile
-
     tide
     company
- 
     counsel
-
     ivy
-
     forge
-
     ng2-mode
-
     znc
-
     bufler
-
     erc-hl-nicks
-
     json-mode
-    ))
+    load-dir
+    org-mime
+    php-mode))
 
 (dolist (p my-packages)
     (when (not (package-installed-p p))
       (package-install p)))
 
 (package-initialize)
+
+; used by mu4e to show images
+(imagemagick-register-types)
 
 (add-to-list 'load-path "~/.emacs.d/customisations")
 (load "theme.el")
@@ -73,8 +61,9 @@
 (load "init-flycheck.el")
 (load "init-shell.el")
 (load "init-tide.el")
-
 (load "init-erc.el")
+(load "init-json.el")
+(load "init-mu4e.el")
 
 (with-eval-after-load 'magit
   (require 'forge)
@@ -152,8 +141,6 @@
 
 (winner-mode)
 
-(add-hook 'json-mode-hook #'flycheck-mode)
-
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((dot . t)))
@@ -177,10 +164,26 @@
 
 (add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
 
+(set-fontset-font t 'symbol 
+                  (font-spec :family "Apple Color Emoji") 
+                  nil 'prepend)
+
 (add-hook 'prog-mode-hook
           (defun before-ng2-ts-mode()
             (when (eq major-mode 'ng2-ts-mode)
               (typescript-mode))))
 
+;; Makes emoji work on MacOS
+(set-fontset-font t '(#x1f000 . #x1faff) (font-spec :family "Apple Color Emoji"))
+
+(defun copy-current-buffer-file-name ()
+  (interactive)
+  (shell-command (concat "echo " (buffer-file-name) " | pbcopy")))
+(global-set-key (kbd "C-x M-f") 'copy-current-buffer-file-name)
+
+
+(require 'org-inlinetask)
+
 (provide 'init)
 ;;; init.el ends here
+
