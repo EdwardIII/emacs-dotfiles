@@ -26,7 +26,6 @@
     ;; extra syntax highlighting for clojure
     ;; clojure-mode-extra-font-locking
     cider
-    flycheck
     magit
     which-key
     smex
@@ -51,6 +50,12 @@
 
 (package-initialize)
 
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(require 'use-package)
+
 ; used by mu4e to show images
 (imagemagick-register-types)
 
@@ -58,7 +63,10 @@
 (load "theme.el")
 (load "sexpers.el")
 (load "clipboard.el")
-(load "init-flycheck.el")
+;;;(load "init-flycheck.el")
+(use-package flycheck
+  :init (global-flycheck-mode))
+
 (load "init-shell.el")
 (load "init-tide.el")
 (load "init-erc.el")
@@ -70,7 +78,6 @@
   (setq auth-sources '("~/.authinfo"))
   (setq forge-add-pullreq-refspec 'ask forge-pull-notifications t
                  forge-topic-list-limit '(60 . 0)))
-
 
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
@@ -105,6 +112,46 @@
 
 
 (global-linum-mode)
+
+(setq use-package-always-defer t
+      use-package-always-ensure t)
+
+(use-package scala-mode
+  :interpreter
+  ("scala" . scala-mode))
+
+(use-package sbt-mode
+  :commands sbt-start sbt-command
+  :config
+  ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
+  ;; allows using SPACE when in the minibuffer
+  (substitute-key-definition
+   'minibuffer-complete-word
+   'self-insert-command
+   minibuffer-local-completion-map)
+   ;; sbt-supershell kills sbt-mode:  https://github.com/hvesalai/emacs-sbt-mode/issues/152
+   (setq sbt:program-options '("-Dsbt.supershell=false"))
+   )
+
+(use-package lsp-mode
+  ;; Optional - enable lsp-mode automatically in scala files
+  :hook  (scala-mode . lsp)
+         (lsp-mode . lsp-lens-mode)
+  :config
+  (setq lsp-enable-snippet nil) ;; try disabling for now as getting weird indentation problems
+  (setq lsp-enable-indentation nil)
+  ;; Uncomment following section if you would like to tune lsp-mode performance according to
+  ;; https://emacs-lsp.github.io/lsp-mode/page/performance/
+  ;;       (setq gc-cons-threshold 100000000) ;; 100mb
+  ;;       (setq read-process-output-max (* 1024 1024)) ;; 1mb
+  ;;       (setq lsp-idle-delay 0.500)
+  ;;       (setq lsp-log-io nil)
+  ;;       (setq lsp-completion-provider :capf)
+  (setq lsp-prefer-flymake nil))
+
+(use-package lsp-metals)
+
+(use-package yasnippet)
 
 (setq backup-directory-alist
           `((".*" . ,(concat user-emacs-directory "backups/"))))

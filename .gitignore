@@ -10,3 +10,9 @@ network-security.data
 /eshell/
 projectile.cache
 tramp
+custom.el
+init.el
+.cache/
+.dap-breakpoints
+.lsp-session-v1
+projects
