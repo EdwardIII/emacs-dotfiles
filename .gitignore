@@ -16,3 +16,6 @@ init.el
 .dap-breakpoints
 .lsp-session-v1
 projects
+forge-database.sqlite
+session.10ce088b09f2789505164881226734303400000022060089
+smex-items

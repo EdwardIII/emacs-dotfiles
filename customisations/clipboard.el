@@ -17,8 +17,10 @@ The argument TEXT contains the text you want to send to the OSX buffer"
       (process-send-string proc text)
       (process-send-eof proc))))
 
-(setq interprogram-cut-function 'paste-to-osx)
-(setq interprogram-paste-function 'copy-from-osx)
+(when (eq system-type 'darwin)
+      (setq interprogram-cut-function 'paste-to-osx)
+      (setq interprogram-paste-function 'copy-from-osx))
+
 
 (provide 'clipboard)
 ;;; clipboard.el ends here
