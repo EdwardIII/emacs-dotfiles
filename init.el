@@ -175,6 +175,13 @@
 
 (use-package yasnippet)
 
+(use-package all-the-icons
+  :if (display-graphic-p))
+
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
+
 (setq backup-directory-alist
           `((".*" . ,(concat user-emacs-directory "backups/"))))
 (setq auto-save-file-name-transforms
@@ -273,6 +280,8 @@
 
 (when (memq window-system '(mac ns x))
   (exec-path-from-shell-initialize))
+
+(repeat-mode)
 
 (setq gnus-button-url 'browse-url-generic
       browse-url-generic-program "firefox"
