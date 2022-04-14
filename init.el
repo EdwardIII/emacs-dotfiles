@@ -28,12 +28,15 @@
       use-package-always-ensure t)
 
 (use-package ag)
+
 (use-package php-mode)
 (use-package magit)
 (use-package cider
   :pin melpa-stable)
 (use-package company)
-(use-package ng2-mode)
+(use-package ng2-mode
+  :hook (typescript--mode . (add-hook 'typescript-mode-hook #'lsp)))
+
 (use-package clojure-mode)
 (use-package erc-hl-nicks)
 (use-package znc
@@ -69,7 +72,9 @@
   :init (which-key-mode))
 (use-package tt-mode
   :init
-  (autoload 'tt-mode "tt-mode"))
+  (autoload 'tt-mode "tt-mode")
+  (setq auto-mode-alist
+      (append '(("\\.tt$" . tt-mode))  auto-mode-alist )))
 (use-package projectile
   :init
   (projectile-mode +1)
@@ -152,9 +157,6 @@
 (use-package doom-modeline
   :init (doom-modeline-mode 1))
 
-(setq auto-mode-alist
-      (append '(("\\.tt$" . tt-mode))  auto-mode-alist ))
-
 (add-to-list 'load-path "~/.emacs.d/customisations")
 (load "sexpers.el")
 ;(load "clipboard.el")
@@ -166,31 +168,23 @@
 
 (set-face-attribute 'default nil :height 140)
 
-(setq js-indent-level 2)
 (global-set-key (kbd "C-<return>") 'set-mark-command)
 
 (global-linum-mode)
+(blink-cursor-mode 0)
 
-
-;; Performance
 (setq gc-cons-threshold 100000000) ;; 100mb
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
-
-
 (setq backup-directory-alist
           `((".*" . ,(concat user-emacs-directory "backups/"))))
 (setq auto-save-file-name-transforms
       `((".*" ,(concat user-emacs-directory "backups/") t)))
-
 (setq inhibit-startup-screen t)
-(blink-cursor-mode 0)
-
 (setq ediff-split-window-function 'split-window-sensibly)
 (setq ediff-ignore-similar-regions t)
-
+(setq js-indent-level 2)
 (setq mac-command-modifier 'control)
 (setq mac-control-modifier 'super)
-
 
 ;; UI tweaks
 
@@ -209,8 +203,8 @@
 (global-set-key (kbd "M-z") 'zap-up-to-char)
 
 (windmove-default-keybindings)
-
 (winner-mode)
+(repeat-mode)
 
 (org-babel-do-load-languages
  'org-babel-load-languages
@@ -234,22 +228,14 @@
 
 ;; I don't want ng2-ts-mode, only ng2-html-mode, so I force typescript-mode
 ;; to stop ng2-ts-mode from taking over .ts files
-
 (add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
 
 (set-fontset-font t 'symbol 
                   (font-spec :family "Apple Color Emoji") 
                   nil 'prepend)
 
-(add-hook 'prog-mode-hook
-          (defun before-ng2-ts-mode()
-            (when (eq major-mode 'ng2-ts-mode)
-              (typescript-mode))))
-
 ;; Makes emoji work on MacOS
 (set-fontset-font t '(#x1f000 . #x1faff) (font-spec :family "Apple Color Emoji"))
-
-(require 'org-inlinetask)
 
 ;; Speed up tramp
 (setq remote-file-name-inhibit-cache nil)
@@ -272,8 +258,6 @@
                    "direct-async-process" t)))
 
 (defalias 'perl-mode 'cperl-mode)
-
-(repeat-mode)
 
 (setq gnus-button-url 'browse-url-generic
       browse-url-generic-program "firefox"
