@@ -25,16 +25,11 @@
     clojure-mode
     ;; extra syntax highlighting for clojure
     ;; clojure-mode-extra-font-locking
-    cider
-    magit
-    which-key
     smex
     projectile
-    tide
     company
     counsel
     ivy
-    forge
     ng2-mode
     znc
     bufler
@@ -43,11 +38,8 @@
     load-dir
     org-mime
     php-mode
-    tt-mode
     ag
-    exec-path-from-shell
-    solarized-theme ;; https://github.com/bbatsov/solarized-emacs
-    ))
+    exec-path-from-shell))
 
 (load-theme 'solarized-dark t)
 
@@ -61,10 +53,41 @@
 
 (require 'use-package)
 
+(use-package magit)
+(use-package cider)
+(use-package which-key
+  :config (which-key-mode))
+(use-package tt-mode
+  :config
+  (autoload 'tt-mode "tt-mode"))
+(use-package solarized-theme  ;; https://github.com/bbatsov/solarized-emacs
+  :config
+  (set-terminal-parameter nil 'background-mode 'dark)
+  (set-frame-parameter nil 'background-mode 'dark))
+(use-package tide
+  :ensure t
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save))
+  :config
+  (setq company-tooltip-align-annotations t)
+  (setq typescript-indent-level 2)
+  (setq tide-format-options '(
+			      :insertSpaceAfterFunctionKeywordForAnonymousFunctions t
+			      :placeOpenBraceOnNewLineForFunctions nil
+			      :indentSize 2
+			      :tabSize 2
+			      :placeOpenBraceOnNewLineForFunctions nil
+			      :placeOpenBraceOnNewLineForControlBlocks nil))
+  (add-hook 'before-save-hook 'tide-format-before-save))
+
+
+
 ; used by mu4e to show images
 (imagemagick-register-types)
 
-(autoload 'tt-mode "tt-mode")
+
 (setq auto-mode-alist
       (append '(("\\.tt$" . tt-mode))  auto-mode-alist ))
 
@@ -82,15 +105,8 @@
 (load "init-json.el")
 ;(load "init-mu4e.el")
 
-(with-eval-after-load 'magit
-  (require 'forge)
-  (setq auth-sources '("~/.authinfo"))
-  (setq forge-add-pullreq-refspec 'ask forge-pull-notifications t
-                 forge-topic-list-limit '(60 . 0)))
-
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
-(which-key-mode)
 (set-face-attribute 'default nil :height 140)
 
 (ivy-mode)
@@ -155,20 +171,20 @@
   (setq lsp-enable-snippet nil) ;; try disabling for now as getting weird indentation problems
   (setq lsp-enable-indentation nil)
   (setq lsp-prefer-flymake nil)
+  (setq lsp-idle-delay 0.500)
+  (setq lsp-log-io nil)
+  (setq lsp-completion-provider :capf))
+
   ;(lsp-register-client
   ;  (make-lsp-client :new-connection (lsp-tramp-connection '("perl" "MPerl::LanguageServer" "-e" "Perl::LanguageServer::run" "--"))
   ;                   :major-modes '(perl-mode)
   ;                   :remote? t
   ;                   :server-id 'perl-ls))
 
-  ;; Uncomment following section if you would like to tune lsp-mode performance according to
-  ;; https://emacs-lsp.github.io/lsp-mode/page/performance/
-  ;;       (setq gc-cons-threshold 100000000) ;; 100mb
-  ;;       (setq read-process-output-max (* 1024 1024)) ;; 1mb
-  ;;       (setq lsp-idle-delay 0.500)
-  ;;       (setq lsp-log-io nil)
-  ;;       (setq lsp-completion-provider :capf)
-)
+;; Performance
+(setq gc-cons-threshold 100000000) ;; 100mb
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
+
 (use-package lsp-ui :commands lsp-ui-mode)
 (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
 (use-package lsp-metals)

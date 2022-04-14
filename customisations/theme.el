@@ -4,8 +4,8 @@
 
 ;;; Code:
 
-(set-terminal-parameter nil 'background-mode 'dark)
-(set-frame-parameter nil 'background-mode 'dark)
-
-(provide 'theme)
+;(set-terminal-parameter nil 'background-mode 'dark)
+;(set-frame-parameter nil 'background-mode 'dark)
+;
+;(provide 'theme)
 ;;; theme.el ends here

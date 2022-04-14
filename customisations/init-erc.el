@@ -17,14 +17,14 @@
           ((libera ,(plist-get credentials :user)
                    ,(decode-password credentials)))))))
 
-
-(defun erc-mac-notifications-notify (nick msg &optional privp)
-  "Notify that NICK send some MSG via AppleScript."
+(when (eq system-type 'darwin)
+  (defun erc-mac-notifications-notify (nick msg &optional privp)
+    "Notify that NICK send some MSG via AppleScript."
     (ns-do-applescript
      (concat "display notification \"" (oz/escape-applescript msg)
              "\" with title \"" (oz/escape-applescript nick) "\"")))
 
-(advice-add 'erc-notifications-notify :override 'erc-mac-notifications-notify)
+  (advice-add 'erc-notifications-notify :override 'erc-mac-notifications-notify))
 
 (defun oz/escape-applescript (str)
   "Quote \\ and \"."
