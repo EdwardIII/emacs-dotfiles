@@ -4,6 +4,8 @@
 
 ;;; Code:
 
+(use-package paredit) ;; todo: move everything below in here
+
 (autoload 'enable-paredit-mode "paredit"
   "Turn on pseudo-structural editing of Lisp code."
   t)

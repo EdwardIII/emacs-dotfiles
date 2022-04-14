@@ -1,8 +1,13 @@
 ;; -*- lexical-binding: t; -*-
 
-;; installed here with `brew install mu` 
+(use-package load-dir)
+
+;; Must `brew install mu fetchmail` for email support separately
 (require 'load-dir)
 (load-dir-one "/usr/local/Cellar/mu/1.6.8/share/emacs/site-lisp")
+
+; used by mu4e to show images
+(imagemagick-register-types)
 
 (require 'mu4e)
 
