@@ -18,8 +18,6 @@
   (package-refresh-contents))
 
 (defvar my-packages
-  ;; Download the theme manually and put it in ~/.emacs.d/themes/
-  ;;  https://github.com/sellout/emacs-color-theme-solarized
   ;; Must `brew install mu fetchmail` for email support separately
   
   '(paredit
@@ -47,7 +45,11 @@
     php-mode
     tt-mode
     ag
-    exec-path-from-shell))
+    exec-path-from-shell
+    solarized-theme ;; https://github.com/bbatsov/solarized-emacs
+    ))
+
+(load-theme 'solarized-dark t)
 
 (dolist (p my-packages)
     (when (not (package-installed-p p))
@@ -78,7 +80,7 @@
 (load "init-tide.el")
 (load "init-erc.el")
 (load "init-json.el")
-(load "init-mu4e.el")
+;(load "init-mu4e.el")
 
 (with-eval-after-load 'magit
   (require 'forge)
@@ -259,11 +261,13 @@
 (setq tramp-inline-compress-start-size 1000)
 (setq tramp-copy-size-limit 10000)
 (setq vc-handled-backends '(Git))
-(setq tramp-verbose 1)
-(setq tramp-default-method "ssh") ;; the wiki says ssh is faster for small files though?
+(setq tramp-verbose 0)
 (setq tramp-use-ssh-controlmaster-options nil)
 (setq projectile--mode-line "Projectile")
-(setq tramp-verbose 1)
+
+(with-eval-after-load "tramp" (add-to-list 'tramp-connection-properties
+             (list (regexp-quote "/ssh:user@host:")
+                   "direct-async-process" t)))
 
 (defalias 'perl-mode 'cperl-mode)
 
@@ -283,19 +287,39 @@
 
 (define-key global-map (kbd "C-c w p") 'ep--search-phab)
 
+(defun ep--proc-done (process signal)
+  "Show a notification that prints 'Done'.
+PROCESS: The process to watch until done
+SIGNAL: The signal the program exited with"
+  (when (memq (process-status process) '(exit signal))
+    (notifications-notify :title "'make' done")
+    (shell-command-sentinel process signal)))
+
+(defun ep--async-shell-command (command done-fn)
+  "Run COMMAND and when finished run DONE-FN."
+  (let* ((output-buffer (generate-new-buffer "*Async shell command*"))
+       (proc (progn
+               (async-shell-command command output-buffer)
+               (get-buffer-process output-buffer))))
+  (if (process-live-p proc)
+      (set-process-sentinel proc done-fn)
+    (message "No process running!"))))
+
 (defun ep--make-ui ()
   "Run the command to build the UI."
   (interactive)
-  (async-shell-command "make -C ~/dev/vX/WCN/ui all"))
+  ;;(async-shell-command "make -C ~/dev/vX/WCN/ui all")
+  (ep--async-shell-command "make -C ~/dev/vX/WCN/ui all" #'ep--proc-done))
 
 (define-key global-map (kbd "C-c w m") 'ep--make-ui)
 
 (defun ep--restart-apache ()
   "Run the command to restart apache."
   (interactive)
-  (async-shell-command "sudo /etc/init.d/apache2 restart"))
+  (ep--async-shell-command "sudo /etc/init.d/apache2 restart" #'ep--proc-done))
 
 (define-key global-map (kbd "C-c w r") 'ep--restart-apache)
+
 
 (provide 'init)
 ;;; init.el ends here
