@@ -197,6 +197,8 @@
 (when (fboundp 'horizontal-scroll-bar-mode)
   (horizontal-scroll-bar-mode -1))
 
+(fset 'yes-or-no-p 'y-or-n-p)
+
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including ARGth occurrence of CHAR." t)
 
