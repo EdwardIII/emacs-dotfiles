@@ -25,7 +25,8 @@
 
 (require 'use-package-ensure) ; install every package if not already there
 (setq use-package-always-defer t
-      use-package-always-ensure t)
+      use-package-always-ensure t
+      use-package-verbose t)
 
 (use-package ag)
 
@@ -34,9 +35,6 @@
 (use-package cider
   :pin melpa-stable)
 (use-package company)
-(use-package ng2-mode
-  :hook (typescript--mode . (add-hook 'typescript-mode-hook #'lsp)))
-
 (use-package clojure-mode)
 (use-package erc-hl-nicks)
 (use-package znc
@@ -92,11 +90,22 @@
   (load-theme 'solarized-dark t)
   (set-terminal-parameter nil 'background-mode 'dark)
   (set-frame-parameter nil 'background-mode 'dark))
+(use-package typescript-mode
+  :after (flycheck-mode)
+  :init
+  (flycheck-add-mode 'typescript-tslint 'web-mode))
+
 (use-package tide
-  :after (typescript-mode company flycheck)
-  :hook ((typescript-mode . tide-setup)
-         (typescript-mode . tide-hl-identifier-mode)
-         (before-save . tide-format-before-save))
+  :preface   (defun setup-tide-mode ()
+               (tide-setup)
+               (flycheck-mode +1)
+               (setq flycheck-check-syntax-automatically '(save mode-enabled))
+               (eldoc-mode +1)
+               (tide-hl-identifier-mode +1)
+               (company-mode +1))
+  :mode ("\\.ts" . typescript-mode)
+  :hook ((typescript-mode . setup-tide-mode)
+         (ng2-ts-mode . setup-tide-mode))
   :config
   (setq company-tooltip-align-annotations t)
   (setq typescript-indent-level 2)
@@ -106,8 +115,7 @@
 			      :indentSize 2
 			      :tabSize 2
 			      :placeOpenBraceOnNewLineForFunctions nil
-			      :placeOpenBraceOnNewLineForControlBlocks nil))
-  (add-hook 'before-save-hook 'tide-format-before-save))
+			      :placeOpenBraceOnNewLineForControlBlocks nil)))
 (use-package scala-mode
   :interpreter
   ("scala" . scala-mode))
@@ -230,7 +238,7 @@
 
 ;; I don't want ng2-ts-mode, only ng2-html-mode, so I force typescript-mode
 ;; to stop ng2-ts-mode from taking over .ts files
-(add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
+;(add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
 
 (set-fontset-font t 'symbol 
                   (font-spec :family "Apple Color Emoji") 
