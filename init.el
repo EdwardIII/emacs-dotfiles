@@ -31,17 +31,28 @@
 (use-package ag)
 
 (use-package php-mode)
-(use-package magit)
+(use-package magit
+  :config
+  ;;(setq auto-revert-buffer-list-filter
+  ;;      'magit-auto-revert-repository-buffer-p) ;; speed up magit with tramp buffers
+  )
 (use-package cider
   :pin melpa-stable)
 (use-package company)
 (use-package clojure-mode)
 (use-package erc-hl-nicks)
+(use-package cperl-mode
+  :config
+  (setq cperl-indent-level 2)
+  (defalias 'perl-mode 'cperl-mode))
 (use-package znc
   :init ) ;; TODO: Pull in from external file
+;; TODO: Maybe this doesn't work in daemon mode because of the deferred loading, or because window-system is different under daemon-mode?
 (use-package exec-path-from-shell
   :init (when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize)))
+          (exec-path-from-shell-initialize))
+        (when (daemonp)
+          (exec-path-from-shell-initialize)))
 (use-package bufler
   :bind ("C-x C-b" . 'bufler))
 (use-package json-mode
@@ -138,21 +149,21 @@
   
   :hook  (scala-mode . lsp)
          (lsp-mode . lsp-lens-mode)
-         ;;(perl-mode . lsp)
+         ;(perl-mode . lsp)
          
-  :config
+  :init
   (setq lsp-enable-snippet nil) ;; try disabling for now as getting weird indentation problems
   (setq lsp-enable-indentation nil)
   (setq lsp-prefer-flymake nil)
   (setq lsp-idle-delay 0.500)
   (setq lsp-log-io nil)
   (setq lsp-completion-provider :capf))
+  ;;(lsp-register-client
+  ;; (make-lsp-client :new-connection (lsp-tramp-connection '("perl-lsp"))
+  ;;                  :major-modes '(perl-mode cperl-mode)
+  ;;                  :remote? t
+  ;;                  :server-id 'perl-ls)))
 
-  ;(lsp-register-client
-  ;  (make-lsp-client :new-connection (lsp-tramp-connection '("perl" "MPerl::LanguageServer" "-e" "Perl::LanguageServer::run" "--"))
-  ;                   :major-modes '(perl-mode)
-  ;                   :remote? t
-  ;                   :server-id 'perl-ls))
 (use-package lsp-ui :commands lsp-ui-mode)
 (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
 (use-package lsp-metals)
@@ -164,6 +175,10 @@
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1))
+
+(use-package guru-mode
+  :init
+  (guru-global-mode +1))
 
 (add-to-list 'load-path "~/.emacs.d/customisations")
 (load "sexpers.el")
@@ -266,8 +281,6 @@
 (with-eval-after-load "tramp" (add-to-list 'tramp-connection-properties
              (list (regexp-quote "/ssh:user@host:")
                    "direct-async-process" t)))
-
-(defalias 'perl-mode 'cperl-mode)
 
 (setq gnus-button-url 'browse-url-generic
       browse-url-generic-program "firefox"
