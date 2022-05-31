@@ -24,12 +24,19 @@
 (require 'use-package)
 
 (require 'use-package-ensure) ; install every package if not already there
-(setq use-package-always-defer t
+(setq ; use-package-always-defer t ; only load packages when they're used. stops :config being caled when you think it does
       use-package-always-ensure t
       use-package-verbose t)
 
+(use-package vterm)
 (use-package ag)
-
+(use-package ace-window
+  :init (global-set-key (kbd "M-o") 'ace-window))
+(use-package nvm
+  :hook
+  (typescript-mode . nvm-use-for-buffer)
+  ; because scss depends on a node interpreter
+  (scss-mode . nvm-use-for-buffer))
 (use-package php-mode)
 (use-package magit
   :config
@@ -117,6 +124,8 @@
   :mode ("\\.ts" . typescript-mode)
   :hook ((typescript-mode . setup-tide-mode)
          (ng2-ts-mode . setup-tide-mode))
+  :bind (("C-c t f" . tide-fix)
+         ("C-c t o" . tide-format))
   :config
   (setq company-tooltip-align-annotations t)
   (setq typescript-indent-level 2)
