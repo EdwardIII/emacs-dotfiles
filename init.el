@@ -341,3 +341,5 @@ SIGNAL: The signal the program exited with"
 (provide 'init)
 ;;; init.el ends here
 
+(fset 'fix-next-tide-error
+   (kmacro-lambda-form [?\M-x ?f ?l ?y ?c ?h return ?\C-c ?t ?f] 0 "%d"))
