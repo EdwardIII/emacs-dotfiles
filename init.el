@@ -56,7 +56,10 @@
   :init (require 'elisp-format))
 (use-package cider
   :pin melpa-stable)
-(use-package company)
+(use-package company
+  :init (global-company-mode))
+
+
 (use-package clojure-mode)
 (use-package erc-hl-nicks)
 (use-package cperl-mode
@@ -305,7 +308,6 @@
 (setq gnus-button-url 'browse-url-generic
       browse-url-generic-program "firefox"
       browse-url-browser-function gnus-button-url)
-
 
 (provide 'init)
 ;;; init.el ends here
