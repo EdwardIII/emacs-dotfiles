@@ -23,6 +23,11 @@
 
 (require 'use-package)
 
+;; For per-machine settings
+(if (file-exists-p "~/.emacs.local.el")
+    (load-file "~/.emacs.local.el"))
+
+
 (require 'use-package-ensure) ; install every package if not already there
 (setq ; use-package-always-defer t ; only load packages when they're used. stops :config being caled when you think it does
       use-package-always-ensure t
@@ -43,6 +48,12 @@
   ;;(setq auto-revert-buffer-list-filter
   ;;      'magit-auto-revert-repository-buffer-p) ;; speed up magit with tramp buffers
   )
+(defvar compile-wcn? t) ; set with
+(use-package js ; js-mode
+  :hook (js-mode . (lambda () (add-hook 'before-save-hook #'ep--make-ui-vagrant-hook))))
+
+(use-package elisp-format
+  :init (require 'elisp-format))
 (use-package cider
   :pin melpa-stable)
 (use-package company)
@@ -294,48 +305,6 @@
 (setq gnus-button-url 'browse-url-generic
       browse-url-generic-program "firefox"
       browse-url-browser-function gnus-button-url)
-
-(defun ep--search-phab ()
-  "Search Phabricator for this filename."
-  (interactive)
-  (browse-url
-   (format "https://vx-phabricator.wcn.co.uk/diffusion/VX/browse/master/?find=%s"
-           (file-name-nondirectory (buffer-file-name)))))
-
-(define-key global-map (kbd "C-c w p") 'ep--search-phab)
-
-(defun ep--proc-done (process signal)
-  "Show a notification that prints 'Done'.
-PROCESS: The process to watch until done
-SIGNAL: The signal the program exited with"
-  (when (memq (process-status process) '(exit signal))
-    (notifications-notify :title "'make' done")
-    (shell-command-sentinel process signal)))
-
-(defun ep--async-shell-command (command done-fn)
-  "Run COMMAND and when finished run DONE-FN."
-  (let* ((output-buffer (generate-new-buffer "*Async shell command*"))
-       (proc (progn
-               (async-shell-command command output-buffer)
-               (get-buffer-process output-buffer))))
-  (if (process-live-p proc)
-      (set-process-sentinel proc done-fn)
-    (message "No process running!"))))
-
-(defun ep--make-ui ()
-  "Run the command to build the UI."
-  (interactive)
-  ;;(async-shell-command "make -C ~/dev/vX/WCN/ui all")
-  (ep--async-shell-command "make -C ~/dev/vX/WCN/ui all" #'ep--proc-done))
-
-(define-key global-map (kbd "C-c w m") 'ep--make-ui)
-
-(defun ep--restart-apache ()
-  "Run the command to restart apache."
-  (interactive)
-  (ep--async-shell-command "sudo /etc/init.d/apache2 restart" #'ep--proc-done))
-
-(define-key global-map (kbd "C-c w r") 'ep--restart-apache)
 
 
 (provide 'init)

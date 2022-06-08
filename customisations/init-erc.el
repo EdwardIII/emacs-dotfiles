@@ -1,5 +1,8 @@
 (require 'znc)
 
+; can you throw all this away for this?
+; https://gitlab.com/slondr/emacs-config/-/raw/master/lib/erc.el
+
 ;; Assumes you use port 1337 for your bnc
 (setq-local erc-port "1337")
 
