@@ -38,11 +38,11 @@
 (add-to-list 'load-path "~/.emacs.d/customisations")
 (setq-default indent-tabs-mode nil)
 (setq save-interprogram-paste-before-kill t
-      apropos-do-all t
+      ;apropos-do-all t
       require-final-newline t
       ;visible-bell t
       load-prefer-newer t
-      ediff-window-setup-function 'ediff-setup-windows-plain
+      ;ediff-window-setup-function 'ediff-setup-windows-plain
       custom-file (expand-file-name "~/.emacs.d/custom.el"))
 (load custom-file)
 
@@ -77,8 +77,6 @@
   :config
   (setq cperl-indent-level 2)
   (defalias 'perl-mode 'cperl-mode))
-(use-package znc
-  :init ) ;; TODO: Pull in from external file
 (use-package exec-path-from-shell
   :init (when (memq window-system '(mac ns x))
           (exec-path-from-shell-initialize))
