@@ -33,6 +33,19 @@
       use-package-always-ensure t
       use-package-verbose t)
 
+;; Load before packages are started - fixes issues where
+;; these vars are required at startup time
+(add-to-list 'load-path "~/.emacs.d/customisations")
+(setq-default indent-tabs-mode nil)
+(setq save-interprogram-paste-before-kill t
+      apropos-do-all t
+      require-final-newline t
+      ;visible-bell t
+      load-prefer-newer t
+      ediff-window-setup-function 'ediff-setup-windows-plain
+      custom-file (expand-file-name "~/.emacs.d/custom.el"))
+(load custom-file)
+
 (use-package vterm)
 (use-package ag)
 (use-package ace-window
@@ -59,16 +72,13 @@
 (use-package company
   :init (global-company-mode))
 
-
 (use-package clojure-mode)
-(use-package erc-hl-nicks)
 (use-package cperl-mode
   :config
   (setq cperl-indent-level 2)
   (defalias 'perl-mode 'cperl-mode))
 (use-package znc
   :init ) ;; TODO: Pull in from external file
-;; TODO: Maybe this doesn't work in daemon mode because of the deferred loading, or because window-system is different under daemon-mode?
 (use-package exec-path-from-shell
   :init (when (memq window-system '(mac ns x))
           (exec-path-from-shell-initialize))
@@ -203,13 +213,12 @@
   :init
   (guru-global-mode +1))
 
-(add-to-list 'load-path "~/.emacs.d/customisations")
 (load "sexpers.el")
 ;(load "clipboard.el")
 
 (load "init-shell.el")
 (load "init-tide.el")
-(load "init-erc.el")
+(load "init-irc.el")
 ;(load "init-mu4e.el")
 
 (set-face-attribute 'default nil :height 140)
@@ -263,16 +272,6 @@
 (global-set-key (kbd "C-M-s") 'isearch-forward)
 (global-set-key (kbd "C-M-r") 'isearch-backward)
 
-(setq-default indent-tabs-mode nil)
-(setq save-interprogram-paste-before-kill t
-      apropos-do-all t
-      require-final-newline t
-      ;visible-bell t
-      load-prefer-newer t
-      ediff-window-setup-function 'ediff-setup-windows-plain
-      custom-file (expand-file-name "~/.emacs.d/custom.el"))
-
-(load custom-file)
 
 ;; I don't want ng2-ts-mode, only ng2-html-mode, so I force typescript-mode
 ;; to stop ng2-ts-mode from taking over .ts files
@@ -306,8 +305,11 @@
                    "direct-async-process" t)))
 
 (setq gnus-button-url 'browse-url-generic
-      browse-url-generic-program "firefox"
+      browse-url-generic-program (if (eq window-system 'ns) "open" "firefox")
       browse-url-browser-function gnus-button-url)
+
+(add-hook 'emacs-lisp-mode-hook 'hs-minor-mode t)
+(add-hook 'emacs-lisp-mode-hook 'hs-hide-initial-comment-block t)
 
 (provide 'init)
 ;;; init.el ends here
