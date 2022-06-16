@@ -18,6 +18,7 @@
  '(erc-track-exclude-server-buffer t)
  '(erc-track-exclude-types '("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353"))
  '(erc-track-priority-faces-only 'all)
+ '(lsp-completion-provider :capf)
  '(package-selected-packages
    '(elisp-mode elisp circe-notifications circe-color-nicks circe elisp-format js-mode vterm nvm exwm web-mode cperl guru-mode doom-modeline solarized-theme yasnippet lsp-metals lsp-ivy lsp-ui lsp-mode sbt-mode scala-mode use-package ag tt-mode php-mode org-mime load-dir json-mode erc-hl-nicks bufler znc ng2-mode forge counsel company tide projectile smex which-key magit cider clojure-mode exec-path-from-shell paredit))
  '(projectile-globally-ignored-directories

@@ -83,7 +83,7 @@
         (when (daemonp)
           (exec-path-from-shell-initialize)))
 (use-package bufler
-  :bind ("C-x C-b" . 'bufler))
+  :bind (("C-x C-b" . bufler)))
 (use-package json-mode
   :hook (json-mode . flycheck-mode))
 (use-package ivy
@@ -112,11 +112,12 @@
   :init
   (autoload 'tt-mode "tt-mode")
   (setq auto-mode-alist
-      (append '(("\\.tt$" . tt-mode))  auto-mode-alist )))
+        (append '(("\\.tt$" . tt-mode))  auto-mode-alist )))
+
 (use-package projectile
   :init
   (projectile-mode +1)
-  (setq projectile-mode-line "Projectile")
+  (declare-function projectile-register-project-type "projectile")
   (projectile-register-project-type 'npm '("package.json")
                                     :project-file "package.json"
 				    :compile "npm install"
@@ -125,14 +126,18 @@
 				    :test-suffix ".spec.ts")
   :bind (:map projectile-mode-map
               ("s-p" . projectile-command-map)))
+
 (use-package solarized-theme  ;; https://github.com/bbatsov/solarized-emacs
   :init
   (load-theme 'solarized-dark t)
   (set-terminal-parameter nil 'background-mode 'dark)
   (set-frame-parameter nil 'background-mode 'dark))
+
+(declare-function flycheck-add-mode "flycheck")
 (use-package typescript-mode
   :after (flycheck-mode)
   :init
+
   (flycheck-add-mode 'typescript-tslint 'web-mode))
 
 (use-package tide
@@ -177,18 +182,17 @@
 (use-package lsp-mode
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
   :init (setq lsp-keymap-prefix "C-c l")
-  
+
   :hook  (scala-mode . lsp)
+         (ruby-mode . lsp)
          (lsp-mode . lsp-lens-mode)
          ;(perl-mode . lsp)
-         
-  :init
+
+  :config
   (setq lsp-enable-snippet nil) ;; try disabling for now as getting weird indentation problems
   (setq lsp-enable-indentation nil)
-  (setq lsp-prefer-flymake nil)
   (setq lsp-idle-delay 0.500)
-  (setq lsp-log-io nil)
-  (setq lsp-completion-provider :capf))
+  (setq lsp-log-io nil))
   ;;(lsp-register-client
   ;; (make-lsp-client :new-connection (lsp-tramp-connection '("perl-lsp"))
   ;;                  :major-modes '(perl-mode cperl-mode)
@@ -233,8 +237,6 @@
 (setq auto-save-file-name-transforms
       `((".*" ,(concat user-emacs-directory "backups/") t)))
 (setq inhibit-startup-screen t)
-(setq ediff-split-window-function 'split-window-sensibly)
-(setq ediff-ignore-similar-regions t)
 (setq js-indent-level 2)
 (setq mac-command-modifier 'control)
 (setq mac-control-modifier 'super)
@@ -275,8 +277,8 @@
 ;; to stop ng2-ts-mode from taking over .ts files
 ;(add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
 
-(set-fontset-font t 'symbol 
-                  (font-spec :family "Apple Color Emoji") 
+(set-fontset-font t 'symbol
+                  (font-spec :family "Apple Color Emoji")
                   nil 'prepend)
 
 ;; Makes emoji work on MacOS
@@ -291,6 +293,7 @@
 
 ;; Faster than the default scp (for small files)
 
+(require 'tramp-sh)
 (setq tramp-inline-compress-start-size 1000)
 (setq tramp-copy-size-limit 10000)
 (setq vc-handled-backends '(Git))
@@ -302,9 +305,9 @@
              (list (regexp-quote "/ssh:user@host:")
                    "direct-async-process" t)))
 
-(setq gnus-button-url 'browse-url-generic
-      browse-url-generic-program (if (eq window-system 'ns) "open" "firefox")
-      browse-url-browser-function gnus-button-url)
+(require 'browse-url)
+(setq browse-url-generic-program (if (eq window-system 'ns) "open" "firefox")
+      browse-url-browser-function 'browse-url-generic)
 
 (add-hook 'emacs-lisp-mode-hook 'hs-minor-mode t)
 (add-hook 'emacs-lisp-mode-hook 'hs-hide-initial-comment-block t)
