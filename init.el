@@ -215,6 +215,10 @@
   :init
   (guru-global-mode +1))
 
+(use-package sqlformat
+  :config
+  (setq sqlformat-command 'pgformatter))
+
 (load "sexpers.el")
 ;(load "clipboard.el")
 
@@ -312,8 +316,16 @@
 (add-hook 'emacs-lisp-mode-hook 'hs-minor-mode t)
 (add-hook 'emacs-lisp-mode-hook 'hs-hide-initial-comment-block t)
 
-(provide 'init)
-;;; init.el ends here
+(require 'org)
+(setq org-default-notes-file (concat org-directory "/notes.org"))
+(require 'org-capture)
+(setq org-capture-templates
+      '(("t" "Todo" entry (file+headline "~/notes.org" "Tasks")
+         "* TODO %?\n  %i\n  %a")))
 
 (fset 'fix-next-tide-error
    (kmacro-lambda-form [?\M-x ?f ?l ?y ?c ?h return ?\C-c ?t ?f] 0 "%d"))
+
+(provide 'init)
+;;; init.el ends here
+
