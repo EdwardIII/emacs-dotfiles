@@ -24,6 +24,8 @@
 
 ;;; Code:
 
+(require 'use-package)
+
 (setq-local irc-port "1337")
 
 (defun ep/decode-password (credentials)
@@ -74,7 +76,7 @@ Find by unique PORT."
            '("EdwardIII")
            circe-notifications-alert-style (if (eq window-system 'ns)
                                                'osx-notifier
-                                               'libnotify)))
+                                             'libnotify)))
 
   (add-hook 'circe-server-connected-hook 'enable-circe-notifications))
 
