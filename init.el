@@ -219,6 +219,17 @@
   :config
   (setq sqlformat-command 'pgformatter))
 
+(use-package yafolding
+  :config
+  (define-key yafolding-mode-map (kbd "<C-S-return>") nil)
+  (define-key yafolding-mode-map (kbd "<C-M-return>") nil)
+  (define-key yafolding-mode-map (kbd "<C-return>") nil)
+  (define-key yafolding-mode-map (kbd "C-c <C-M-return>") nil)
+  (define-key yafolding-mode-map (kbd "C-c <C-S-return>") nil)
+  (define-key yafolding-mode-map (kbd "C-c <C-return>") 'yafolding-toggle-element)
+  (add-hook 'json-mode-hook (lambda ()
+                              (yafolding-mode))))
+
 (load "sexpers.el")
 ;(load "clipboard.el")
 
@@ -331,6 +342,7 @@
   (save-excursion
     (ffap-next-url t t)))
 
+;; TODO: Use `process-lines`
 (defun ep/find-files (path criteria)
   (split-string (shell-command-to-string (format "find %s -name %s" path criteria)) "\n" t))
 
