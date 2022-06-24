@@ -324,7 +324,25 @@
          "* TODO %?\n  %i\n  %a")))
 
 (fset 'fix-next-tide-error
-   (kmacro-lambda-form [?\M-x ?f ?l ?y ?c ?h return ?\C-c ?t ?f] 0 "%d"))
+      (kmacro-lambda-form [?\M-x ?f ?l ?y ?c ?h return ?\C-c ?t ?f] 0 "%d"))
+
+(defun browse-last-url-in-brower ()
+  (interactive)
+  (save-excursion
+    (ffap-next-url t t)))
+
+(defun ep/find-files (path criteria)
+  (split-string (shell-command-to-string (format "find %s -name %s" path criteria)) "\n" t))
+
+(defun ep/clean-file-whitespace (filename)
+  (let ((current-buf (find-file filename)))
+    (goto-char (point-max))
+    (activate-mark)
+    (whitespace-cleanup-region (point-min) (point-max))
+    (save-buffer)
+    (kill-buffer)))
+
+(global-set-key (kbd "C-c u") #'ffap-next-url)
 
 (provide 'init)
 ;;; init.el ends here
