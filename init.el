@@ -120,10 +120,10 @@
   (declare-function projectile-register-project-type "projectile")
   (projectile-register-project-type 'npm '("package.json")
                                     :project-file "package.json"
-				    :compile "npm install"
-				    :test "npm test"
-				    :run "npm start"
-				    :test-suffix ".spec.ts")
+                                    :compile "npm install"
+                                    :test "npm test"
+                                    :run "npm start"
+                                    :test-suffix ".spec.ts")
   :bind (:map projectile-mode-map
               ("s-p" . projectile-command-map)))
 
@@ -157,12 +157,12 @@
   (setq company-tooltip-align-annotations t)
   (setq typescript-indent-level 2)
   (setq tide-format-options '(
-			      :insertSpaceAfterFunctionKeywordForAnonymousFunctions t
-			      :placeOpenBraceOnNewLineForFunctions nil
-			      :indentSize 2
-			      :tabSize 2
-			      :placeOpenBraceOnNewLineForFunctions nil
-			      :placeOpenBraceOnNewLineForControlBlocks nil)))
+                              :insertSpaceAfterFunctionKeywordForAnonymousFunctions t
+                              :placeOpenBraceOnNewLineForFunctions nil
+                              :indentSize 2
+                              :tabSize 2
+                              :placeOpenBraceOnNewLineForFunctions nil
+                              :placeOpenBraceOnNewLineForControlBlocks nil)))
 (use-package scala-mode
   :interpreter
   ("scala" . scala-mode))
@@ -230,6 +230,9 @@
   (add-hook 'json-mode-hook (lambda ()
                               (yafolding-mode))))
 
+(use-package ws-butler
+  :hook prog-mode)
+
 (load "sexpers.el")
 ;(load "clipboard.el")
 
@@ -253,6 +256,8 @@
       `((".*" ,(concat user-emacs-directory "backups/") t)))
 (setq inhibit-startup-screen t)
 (setq js-indent-level 2)
+
+;; TODO: next time you're on mac, look up where this comes from and declare it
 (setq mac-command-modifier 'control)
 (setq mac-control-modifier 'super)
 
@@ -337,25 +342,45 @@
 (fset 'fix-next-tide-error
       (kmacro-lambda-form [?\M-x ?f ?l ?y ?c ?h return ?\C-c ?t ?f] 0 "%d"))
 
+(require 'ffap)
 (defun browse-last-url-in-brower ()
+  "Find the last url in the buffer."
   (interactive)
   (save-excursion
     (ffap-next-url t t)))
 
-;; TODO: Use `process-lines`
+;; TODO: eh?
+(global-set-key (kbd "C-c u") #'ffap-next-url)
+
 (defun ep/find-files (path criteria)
-  (split-string (shell-command-to-string (format "find %s -name %s" path criteria)) "\n" t))
+  "Search PATH for all files matching CRITERIA, a glob."
+  (process-lines "find" path "-name" criteria))
 
 (defun ep/clean-file-whitespace (filename)
-  (let ((current-buf (find-file filename)))
-    (goto-char (point-max))
-    (activate-mark)
-    (whitespace-cleanup-region (point-min) (point-max))
-    (save-buffer)
-    (kill-buffer)))
+  "Clean up all whitespace in this FILENAME.
+Opens the file, changes it, saves it, then closes the buffer."
+  (find-file filename)
+  (goto-char (point-max))
+  (activate-mark)
+  (whitespace-cleanup-region (point-min) (point-max))
+  (save-buffer)
+  (kill-buffer))
 
-(global-set-key (kbd "C-c u") #'ffap-next-url)
+(defun ep/extension->glob ()
+  "For the current buffer, turn the exexion into a glob.
+E.g. init.el -> *.el"
+  (if-let ((filename buffer-file-name))
+      (format "*.%s" (file-name-extension (buffer-file-name)))
+    (progn
+      (message "Tried to get extension buffer is not a file")
+      "")))
+
+(defun ep/fix-whitespace-in (directory criteria)
+  "Recursively cleanup whitespace issues.
+Recursively searches through DIRECTORY for CRITERIA (glob)."
+  (interactive (list (read-string "Directory? " (read-directory-name "."))
+                     (read-string "Criteria (glob)? " (ep/extension->glob))))
+  (mapc 'ep/clean-file-whitespace (ep/find-files directory criteria)))
 
 (provide 'init)
 ;;; init.el ends here
-
