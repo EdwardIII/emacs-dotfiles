@@ -230,12 +230,14 @@
   (add-hook 'json-mode-hook (lambda ()
                               (yafolding-mode))))
 
-(use-package ws-butler
-  :hook prog-mode)
+;; For some reason this fails on a mac with this error:
+;; run-hooks: Autoloading file /Users/edward/.emacs.d/elpa/ws-butler-20201117.1528/ws-butler.elc failed to define function ws-butler
+(unless (eq window-system 'ns)
+  (use-package
+    ws-butler
+    :hook prog-mode))
 
 (load "sexpers.el")
-;(load "clipboard.el")
-
 (load "init-shell.el")
 (load "init-tide.el")
 (load "init-irc.el")
@@ -257,9 +259,9 @@
 (setq inhibit-startup-screen t)
 (setq js-indent-level 2)
 
-;; TODO: next time you're on mac, look up where this comes from and declare it
-(setq mac-command-modifier 'control)
-(setq mac-control-modifier 'super)
+(when (eq window-system 'ns)
+  (setq mac-command-modifier 'control)
+  (setq mac-control-modifier 'super))
 
 ;; UI tweaks
 

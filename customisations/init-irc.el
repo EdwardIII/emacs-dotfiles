@@ -20,7 +20,7 @@
 
 ;;; Commentary:
 
-;; 
+;;
 
 ;;; Code:
 
@@ -58,13 +58,13 @@ Find by unique PORT."
        :port ,irc-port))))
 
 (use-package circe
-  :init
-  (setq circe-network-options (ep/circe-credentials))
-  (enable-circe-color-nicks)
+  :init (setq circe-network-options (ep/circe-credentials)) 
+  (enable-circe-color-nicks) 
   :config
   ;; https://github.com/emacs-circe/circe/issues/298
-  (circe-set-display-handler "353" 'circe-display-ignore)
-  (circe-set-display-handler "366" 'circe-display-ignore))
+  (when (fboundp 'circe-set-display-handler) 
+    (circe-set-display-handler "353" 'circe-display-ignore) 
+    (circe-set-display-handler "366" 'circe-display-ignore)))
 
 
 (use-package circe-notifications
