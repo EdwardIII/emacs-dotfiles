@@ -46,7 +46,9 @@
       custom-file (expand-file-name "~/.emacs.d/custom.el"))
 (load custom-file)
 
-(use-package vterm)
+(use-package vterm
+  :config
+  :bind (("C-c v" . vterm)))
 (use-package ag)
 (use-package ace-window
   :init (global-set-key (kbd "M-o") 'ace-window))
@@ -261,7 +263,9 @@
 
 (when (eq window-system 'ns)
   (setq mac-command-modifier 'control)
-  (setq mac-control-modifier 'super))
+  (setq mac-control-modifier 'super)
+  (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)
+  (set-fontset-font t '(#x1f000 . #x1faff) (font-spec :family "Apple Color Emoji")))
 
 ;; UI tweaks
 
@@ -292,19 +296,12 @@
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
 (global-set-key (kbd "C-r") 'isearch-backward-regexp)
 (global-set-key (kbd "C-M-s") 'isearch-forward)
-(global-set-key (kbd "C-M-r") 'isearch-backward)
-
+(global-set-key(kbd "C-M-r") 'isearch-backward)
 
 ;; I don't want ng2-ts-mode, only ng2-html-mode, so I force typescript-mode
 ;; to stop ng2-ts-mode from taking over .ts files
 ;(add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
 
-(set-fontset-font t 'symbol
-                  (font-spec :family "Apple Color Emoji")
-                  nil 'prepend)
-
-;; Makes emoji work on MacOS
-(set-fontset-font t '(#x1f000 . #x1faff) (font-spec :family "Apple Color Emoji"))
 
 ;; Speed up tramp
 (setq remote-file-name-inhibit-cache nil)
@@ -312,8 +309,6 @@
       (format "%s\\|%s"
                     vc-ignore-dir-regexp
                     tramp-file-name-regexp))
-
-;; Faster than the default scp (for small files)
 
 (require 'tramp-sh)
 (setq tramp-inline-compress-start-size 1000)
@@ -383,6 +378,57 @@ Recursively searches through DIRECTORY for CRITERIA (glob)."
   (interactive (list (read-string "Directory? " (read-directory-name "."))
                      (read-string "Criteria (glob)? " (ep/extension->glob))))
   (mapc 'ep/clean-file-whitespace (ep/find-files directory criteria)))
+
+
+(require 'xref)
+(require 'project)
+
+(defun ep/find-files-ag (regex directory)
+  "Search in DIRECTORY for REGEX."
+  ;; TODO: not doing ignores properly, they are magically coming
+  ;; from somewhere
+  (process-lines-ignore-status "ag" "-l" regex (expand-file-name directory)))
+
+(defun ep/-append-path (path &optional optional-path)
+  "Append OPTIONAL-PATH to PATH, if OPTIONAL-PATH is set."
+  (if optional-path
+      (concat (file-name-as-directory path) (file-name-as-directory optional-path))
+    path))
+
+(defun ep/-project-file-ag
+    (regex &optional subdir)
+  "Search for the REGEX in the project directory.
+Optional SUBDIR to limit searches to a certain directory"
+  (let ((regex regex)
+        (path (or subdir (ep/-append-path
+                           (project-root
+                            (project-current))
+                           subdir))))
+    (if-let ((found-files
+                (ep/find-files-ag regex
+                                  path)))
+      (xref--show-xrefs
+       (xref-matches-in-files regex
+                              found-files)
+       nil)
+      (user-error "No files found"))))
+
+(defun ep/project-file-ag
+    (regex &optional subdir)
+  "Search for the REGEX in the project directory.
+Optional SUBDIR to limit searches to a certain directory"
+  (interactive (list (read-string "Regex: ")
+                     (when current-prefix-arg (read-directory-name "Sub directory: " "."))))
+  (ep/-project-file-ag regex subdir))
+
+(global-set-key (kbd "C-c f f") 'ep/project-file-ag)
+
+;;; Ever need to turn off vc to speed up ssh tramp access?
+;; (with-eval-after-load 'vc
+;;   (remove-hook 'find-file-hook 'vc-find-file-hook)
+;;   (remove-hook 'find-file-hook 'vc-refresh-state)
+;;   (setq vc-handled-backends nil))
+
 
 (provide 'init)
 ;;; init.el ends here
