@@ -8,6 +8,7 @@
  '(circe-default-quit-message "All the best.")
  '(circe-default-realname "Edward")
  '(circe-highlight-nick-type 'message)
+ '(circe-lagmon-mode t)
  '(circe-reduce-lurker-spam t)
  '(circe-track-faces-priorities '(circe-highlight-nick-face))
  '(css-indent-offset 2)
