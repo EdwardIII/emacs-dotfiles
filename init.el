@@ -232,13 +232,6 @@
   (add-hook 'json-mode-hook (lambda ()
                               (yafolding-mode))))
 
-;; For some reason this fails on a mac with this error:
-;; run-hooks: Autoloading file /Users/edward/.emacs.d/elpa/ws-butler-20201117.1528/ws-butler.elc failed to define function ws-butler
-(unless (eq window-system 'ns)
-  (use-package
-    ws-butler
-    :hook prog-mode))
-
 (load "sexpers.el")
 (load "init-shell.el")
 (load "init-tide.el")
@@ -429,6 +422,15 @@ Optional SUBDIR to limit searches to a certain directory"
 ;;   (remove-hook 'find-file-hook 'vc-refresh-state)
 ;;   (setq vc-handled-backends nil))
 
+(defun ep/ts-eval ()
+  "Compile the current file, then run it.
+Outputs the results to a dedicated buffer."
+  (interactive)
+  (shell-command "npx tsc && npx node index.js" "*ts-eval*")
+  (with-current-buffer "*ts-eval*" (js-mode)
+                       (setq-local flycheck-disabled-checkers '(javascript-eslint))))
+
+(global-set-key (kbd "C-c t e") 'ep/ts-eval)
 
 (provide 'init)
 ;;; init.el ends here
