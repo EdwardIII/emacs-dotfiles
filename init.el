@@ -59,13 +59,9 @@
   (scss-mode . nvm-use-for-buffer))
 (use-package php-mode)
 (use-package magit
-  :config
-  ;;(setq auto-revert-buffer-list-filter
-  ;;      'magit-auto-revert-repository-buffer-p) ;; speed up magit with tramp buffers
-  )
-(defvar compile-wcn? t) ; set with
-(use-package js ; js-mode
-  :hook (js-mode . (lambda () (add-hook 'before-save-hook #'ep--make-ui-vagrant-hook))))
+  :config)
+
+(use-package js)
 
 (use-package elisp-format
   :init (require 'elisp-format))
