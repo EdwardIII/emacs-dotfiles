@@ -165,41 +165,33 @@
                               :tabSize 2
                               :placeOpenBraceOnNewLineForFunctions nil
                               :placeOpenBraceOnNewLineForControlBlocks nil)))
-(use-package scala-mode
-  :interpreter
-  ("scala" . scala-mode))
-
-(use-package sbt-mode
-  :commands sbt-start sbt-command
-  :config
-  ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
-  ;; allows using SPACE when in the minibuffer
-  (substitute-key-definition
-   'minibuffer-complete-word
-   'self-insert-command
-   minibuffer-local-completion-map)
-   ;; sbt-supershell kills sbt-mode:  https://github.com/hvesalai/emacs-sbt-mode/issues/152
-   (setq sbt:program-options '("-Dsbt.supershell=false")))
 
 (use-package lsp-mode
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
   :init (setq lsp-keymap-prefix "C-c l")
 
-  :hook  (scala-mode . lsp)
-         (ruby-mode . lsp)
+  :hook  (ruby-mode . lsp)
          (lsp-mode . lsp-lens-mode)
-         ;(perl-mode . lsp)
 
   :config
   (setq lsp-enable-snippet nil) ;; try disabling for now as getting weird indentation problems
   (setq lsp-enable-indentation nil)
   (setq lsp-idle-delay 0.500)
   (setq lsp-log-io nil))
-  ;;(lsp-register-client
-  ;; (make-lsp-client :new-connection (lsp-tramp-connection '("perl-lsp"))
-  ;;                  :major-modes '(perl-mode cperl-mode)
-  ;;                  :remote? t
-  ;;                  :server-id 'perl-ls)))
+
+(use-package
+  dap-mode
+  :config (dap-auto-configure-mode)
+  (require 'dap-node)
+  (declare-function dap-register-debug-template "dap-mode")
+  ;; You need to run (dap-node-setup), and also do this:
+  ;; See https://github.com/emacs-lsp/dap-mode/issues/554
+  (dap-register-debug-template "TS Scratch"
+                               '(:type "node"
+                                       :request "launch"
+                                       :name "Launch Program"
+                                       :runtimeArgs ["-r" "ts-node/register"]
+                                       :args ["/home/edward/Projects/ts-scratch/index.ts"])))
 
 (use-package lsp-ui :commands lsp-ui-mode)
 (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
@@ -426,7 +418,7 @@ Optional SUBDIR to limit searches to a certain directory"
   "Compile the current file, then run it.
 Outputs the results to a dedicated buffer."
   (interactive)
-  (shell-command "npx tsc && npx node index.js" "*ts-eval*")
+  (shell-command "node -r ts-node/register index.ts" "*ts-eval*")
   (with-current-buffer "*ts-eval*" (js-mode)
                        (setq-local flycheck-disabled-checkers '(javascript-eslint))))
 

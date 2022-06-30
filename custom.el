@@ -12,6 +12,7 @@
  '(circe-reduce-lurker-spam t)
  '(circe-track-faces-priorities '(circe-highlight-nick-face))
  '(css-indent-offset 2)
+ '(dap-auto-configure-features '(sessions locals breakpoints expressions controls))
  '(erc-hide-list '("JOIN" "PART" "QUIT" "MODE"))
  '(erc-modules
    '(button completion fill irccontrols keep-place match move-to-prompt netsplit notify notifications ring scrolltobottom stamp spelling track hl-nicks netsplit fill button match track completion readonly networks ring autojoin noncommands irccontrols move-to-prompt stamp menu list))
