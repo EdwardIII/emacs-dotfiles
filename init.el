@@ -90,9 +90,6 @@
   (setq ivy-use-virtual-buffers t)
   (setq ivy-count-format "(%d/%d) ")
   (global-set-key (kbd "C-s") 'swiper-isearch))
-(use-package smex
-  :bind (("M-x" . 'smex)
-         ("M-X" . 'smex-major-mode-commands)))
 (use-package flycheck
   :init (global-flycheck-mode)
   (global-flycheck-mode)
@@ -101,9 +98,10 @@
 (use-package counsel
   :init
   (counsel-mode)
-  :bind (("C-c g" . 'counsel-git)
-   ("C-c j" . 'counsel-git-grep)
-   ( "C-c k" . 'counsel-ag)))
+  :bind (("M-x" . 'counsel-M-x)
+         ("C-c g" . 'counsel-git)
+         ("C-c j" . 'counsel-git-grep)
+         ( "C-c k" . 'counsel-ag)))
 (use-package which-key
   :init (which-key-mode))
 (use-package tt-mode
@@ -219,6 +217,9 @@
   (define-key yafolding-mode-map (kbd "C-c <C-return>") 'yafolding-toggle-element)
   (add-hook 'json-mode-hook (lambda ()
                               (yafolding-mode))))
+
+(use-package mode-line-bell
+  :init (mode-line-bell-mode))
 
 (load "sexpers.el")
 (load "init-shell.el")
