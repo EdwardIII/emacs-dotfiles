@@ -20,6 +20,7 @@
  '(erc-track-exclude-server-buffer t)
  '(erc-track-exclude-types '("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353"))
  '(erc-track-priority-faces-only 'all)
+ '(flycheck-stylelintrc "~/.stylelintrc.json")
  '(lsp-completion-provider :capf t)
  '(lui-flyspell-p t)
  '(package-selected-packages

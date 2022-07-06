@@ -94,13 +94,42 @@
   :init (global-flycheck-mode)
   (global-flycheck-mode)
   (setq-default flycheck-disabled-checker '(emacs-lisp-checkdoc))
-  (add-hook 'after-init-hook #'global-flycheck-mode))
+  (add-hook 'after-init-hook #'global-flycheck-mode)
+
+  ;; be sure to install the following to get scss support:
+  ;; npm install -g npm install stylelint stylelint-scss stylelint-config-standard-scss
+  ;; Then add something like the following to ~/.stylelintrc.json:
+  ;; {
+  ;;   "extends": "stylelint-config-standard-scss",
+  ;;   "plugins": [
+  ;;     "stylelint-scss"
+  ;;   ],
+  ;;   "rules": {
+  ;;     "at-rule-no-unknown": null,
+  ;;     "scss/at-rule-no-unknown": true
+  ;;   }
+  ;; }
+
+  :config
+  ;; Overwrite existing scss-stylelint checker to not use --syntax
+  ;; as this breaks the latest version of stylelint
+  ;; See: scss-stylelint checker doesn't work due to --syntax option removed from stylelint v14
+  (flycheck-define-checker scss-stylelint
+    "A SCSS syntax and style checker using stylelint.
+
+See URL `http://stylelint.io/'."
+    :command ("stylelint"
+              (eval flycheck-stylelint-args)
+              ;; "--syntax" "scss"
+              (option-flag "--quiet" flycheck-stylelint-quiet)
+              (config-file "--config" flycheck-stylelintrc))
+    :standard-input t
+    :error-parser flycheck-parse-stylelint
+    :modes (scss-mode)))
 (use-package counsel
   :init
   (counsel-mode)
   :bind (("M-x" . 'counsel-M-x)
-         ("C-c g" . 'counsel-git)
-         ("C-c j" . 'counsel-git-grep)
          ( "C-c k" . 'counsel-ag)))
 (use-package which-key
   :init (which-key-mode))
