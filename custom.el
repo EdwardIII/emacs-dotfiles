@@ -20,14 +20,22 @@
  '(erc-track-exclude-server-buffer t)
  '(erc-track-exclude-types '("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353"))
  '(erc-track-priority-faces-only 'all)
+ '(flycheck-perl-include-path '("/home/vagrant/dev/vX/WCN/lib"))
  '(flycheck-stylelintrc "~/.stylelintrc.json")
- '(lsp-completion-provider :capf t)
+ '(lsp-completion-provider :capf)
  '(lui-flyspell-p t)
+ '(org-confirm-babel-evaluate nil)
+ '(org-link-shell-confirm-function nil)
  '(package-selected-packages
    '(mode-line-bell ts-comint yafolding sqlformat elisp-mode elisp circe-notifications circe-color-nicks circe elisp-format js-mode vterm nvm exwm web-mode cperl guru-mode doom-modeline solarized-theme yasnippet lsp-metals lsp-ivy lsp-ui lsp-mode sbt-mode scala-mode use-package ag tt-mode php-mode org-mime load-dir json-mode erc-hl-nicks bufler znc ng2-mode forge counsel company tide projectile smex which-key magit cider clojure-mode exec-path-from-shell paredit))
  '(projectile-globally-ignored-directories
    '(".idea" ".vscode" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".pijul" ".tox" ".svn" ".stack-work" ".ccls-cache" ".cache" ".clangd" "*node_modules" "*baseline" "*swagger-ui-dist"))
  '(projectile-globally-ignored-file-suffixes '("jar" "bin" "js.map"))
+ '(safe-local-variable-values
+   '((auto-revert-buffer-list-filter function magit-auto-revert-repository-buffer-p)
+     (auto-revert-buffer-list-filter quote magit-auto-revert-repository-buffer-p)
+     (magit-refresh-status-buffer)
+     (magit-refresh-buffers)))
  '(tracking-faces-priorities '(circe-highlight-nick-face))
  '(tracking-ignored-buffers '((".*")))
  '(tracking-mode t)

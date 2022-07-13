@@ -193,14 +193,37 @@ See URL `http://stylelint.io/'."
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
   :init (setq lsp-keymap-prefix "C-c l")
 
-  :hook  (ruby-mode . lsp)
-         (lsp-mode . lsp-lens-mode)
+  :hook
+  (ruby-mode . lsp)
+  (lsp-mode . lsp-lens-mode)
 
   :config
   (setq lsp-enable-snippet nil) ;; try disabling for now as getting weird indentation problems
   (setq lsp-enable-indentation nil)
   (setq lsp-idle-delay 0.500)
-  (setq lsp-log-io nil))
+  (setq lsp-log-io nil)
+
+  (declare-function lsp-register-client "lsp-mode")
+  (declare-function make-lsp-client "lsp-mode")
+  (declare-function lsp-tramp-connection "lsp-mode")
+  (declare-function lsp--set-configuration "lsp-mode")
+  (declare-function lsp-configuration-section "lsp-mode")
+
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-tramp-connection
+                                     (lambda ()
+                                       (list "perl"
+                                             "-MPerl::LanguageServer" "-e" "Perl::LanguageServer::run" "--"
+                                             (format "--port %d --version %s"
+                                                     13603 "2.1.0"))))
+                    :major-modes '(perl-mode cperl-mode)
+                    :initialized-fn (lambda (workspace)
+                                      (with-lsp-workspace workspace
+                                        (lsp--set-configuration
+                                         (lsp-configuration-section "perl"))))
+                    :priority -2
+                    :server-id 'perl-language-server-remote
+                    :remote? t)))
 
 (use-package
   dap-mode
