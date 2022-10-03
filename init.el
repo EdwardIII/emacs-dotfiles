@@ -177,7 +177,8 @@ See URL `http://stylelint.io/'."
   :hook ((typescript-mode . setup-tide-mode)
          (ng2-ts-mode . setup-tide-mode))
   :bind (("C-c t f" . tide-fix)
-         ("C-c t o" . tide-format))
+         ("C-c t o" . tide-format)
+         ("C-c t r" . tide-rename-symbol))
   :config
   (setq company-tooltip-align-annotations t)
   (setq typescript-indent-level 2)
@@ -195,6 +196,7 @@ See URL `http://stylelint.io/'."
 
   :hook
   (ruby-mode . lsp)
+  (scss-mode . lsp) ;; don't forget to M-x lsp-install-server RET css-ls RET
   (lsp-mode . lsp-lens-mode)
 
   :config
@@ -241,7 +243,6 @@ See URL `http://stylelint.io/'."
 
 (use-package lsp-ui :commands lsp-ui-mode)
 (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
-(use-package lsp-metals)
 
 (use-package yasnippet)
 
@@ -250,10 +251,6 @@ See URL `http://stylelint.io/'."
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1))
-
-(use-package guru-mode
-  :init
-  (guru-global-mode +1))
 
 (use-package sqlformat
   :config
@@ -272,6 +269,20 @@ See URL `http://stylelint.io/'."
 
 (use-package mode-line-bell
   :init (mode-line-bell-mode))
+
+(use-package mhtml-mode
+          ;; so ace-window keybindings don't get overridden
+  :config (define-key mhtml-mode-map (kbd "M-o") nil))
+
+(use-package god-mode
+  :init (god-mode)
+
+  (defun my-god-mode-update-cursor-type ()
+    (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
+  (add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
+  (define-key god-local-mode-map (kbd "z") #'repeat)
+  (define-key god-local-mode-map (kbd "i") #'god-local-mode)
+  (global-set-key (kbd "C-i") #'god-local-mode))
 
 (load "sexpers.el")
 (load "init-shell.el")
@@ -357,7 +368,7 @@ See URL `http://stylelint.io/'."
                    "direct-async-process" t)))
 
 (require 'browse-url)
-(setq browse-url-generic-program (if (eq window-system 'ns) "open" "firefox")
+(setq browse-url-generic-program (if (eq window-system 'ns) "open" "google-chrome-stable")
       browse-url-browser-function 'browse-url-generic)
 
 (add-hook 'emacs-lisp-mode-hook 'hs-minor-mode t)
@@ -372,6 +383,8 @@ See URL `http://stylelint.io/'."
 
 (fset 'fix-next-tide-error
       (kmacro-lambda-form [?\M-x ?f ?l ?y ?c ?h return ?\C-c ?t ?f] 0 "%d"))
+
+(setq create-lockfiles nil)
 
 (require 'ffap)
 (defun browse-last-url-in-brower ()
