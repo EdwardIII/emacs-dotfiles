@@ -180,7 +180,8 @@ See URL `http://stylelint.io/'."
   :hook ((typescript-mode . setup-tide-mode)
          (ng2-ts-mode . setup-tide-mode))
   :bind (("C-c t f" . tide-fix)
-         ("C-c t o" . tide-format))
+         ("C-c t o" . tide-format)
+         ("C-c t r" . tide-rename-symbol))
   :config
   (setq company-tooltip-align-annotations t)
   (setq typescript-indent-level 2)
@@ -196,14 +197,38 @@ See URL `http://stylelint.io/'."
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
   :init (setq lsp-keymap-prefix "C-c l")
 
-  :hook  (ruby-mode . lsp)
-         (lsp-mode . lsp-lens-mode)
+  :hook
+  (ruby-mode . lsp)
+  (scss-mode . lsp) ;; don't forget to M-x lsp-install-server RET css-ls RET
+  (lsp-mode . lsp-lens-mode)
 
   :config
   (setq lsp-enable-snippet nil) ;; try disabling for now as getting weird indentation problems
   (setq lsp-enable-indentation nil)
   (setq lsp-idle-delay 0.500)
-  (setq lsp-log-io nil))
+  (setq lsp-log-io nil)
+
+  (declare-function lsp-register-client "lsp-mode")
+  (declare-function make-lsp-client "lsp-mode")
+  (declare-function lsp-tramp-connection "lsp-mode")
+  (declare-function lsp--set-configuration "lsp-mode")
+  (declare-function lsp-configuration-section "lsp-mode")
+
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-tramp-connection
+                                     (lambda ()
+                                       (list "perl"
+                                             "-MPerl::LanguageServer" "-e" "Perl::LanguageServer::run" "--"
+                                             (format "--port %d --version %s"
+                                                     13603 "2.1.0"))))
+                    :major-modes '(perl-mode cperl-mode)
+                    :initialized-fn (lambda (workspace)
+                                      (with-lsp-workspace workspace
+                                        (lsp--set-configuration
+                                         (lsp-configuration-section "perl"))))
+                    :priority -2
+                    :server-id 'perl-language-server-remote
+                    :remote? t)))
 
 (use-package
   dap-mode
@@ -221,7 +246,6 @@ See URL `http://stylelint.io/'."
 
 (use-package lsp-ui :commands lsp-ui-mode)
 (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
-(use-package lsp-metals)
 
 (use-package yasnippet)
 
@@ -230,10 +254,6 @@ See URL `http://stylelint.io/'."
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1))
-
-(use-package guru-mode
-  :init
-  (guru-global-mode +1))
 
 (use-package sqlformat
   :config
@@ -255,6 +275,20 @@ See URL `http://stylelint.io/'."
 
 (use-package flycheck-clj-kondo
   :ensure t)
+
+(use-package mhtml-mode
+          ;; so ace-window keybindings don't get overridden
+  :config (define-key mhtml-mode-map (kbd "M-o") nil))
+
+(use-package god-mode
+  :init (god-mode)
+
+  (defun my-god-mode-update-cursor-type ()
+    (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
+  (add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
+  (define-key god-local-mode-map (kbd "z") #'repeat)
+  (define-key god-local-mode-map (kbd "i") #'god-local-mode)
+  (global-set-key (kbd "C-i") #'god-local-mode))
 
 (load "sexpers.el")
 (load "init-shell.el")
@@ -340,7 +374,7 @@ See URL `http://stylelint.io/'."
                    "direct-async-process" t)))
 
 (require 'browse-url)
-(setq browse-url-generic-program (if (eq window-system 'ns) "open" "firefox")
+(setq browse-url-generic-program (if (eq window-system 'ns) "open" "google-chrome-stable")
       browse-url-browser-function 'browse-url-generic)
 
 (add-hook 'emacs-lisp-mode-hook 'hs-minor-mode t)
@@ -355,6 +389,8 @@ See URL `http://stylelint.io/'."
 
 (fset 'fix-next-tide-error
       (kmacro-lambda-form [?\M-x ?f ?l ?y ?c ?h return ?\C-c ?t ?f] 0 "%d"))
+
+(setq create-lockfiles nil)
 
 (require 'ffap)
 (defun browse-last-url-in-brower ()
