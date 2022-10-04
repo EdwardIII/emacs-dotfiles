@@ -21,7 +21,7 @@
  '(erc-track-exclude-types '("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353"))
  '(erc-track-priority-faces-only 'all)
  '(flycheck-stylelintrc "~/.stylelintrc.json")
- '(lsp-completion-provider :capf t)
+ '(lsp-completion-provider :capf)
  '(lui-flyspell-p t)
  '(package-selected-packages
    '(mode-line-bell ts-comint yafolding sqlformat elisp-mode elisp circe-notifications circe-color-nicks circe elisp-format js-mode vterm nvm exwm web-mode cperl guru-mode doom-modeline solarized-theme yasnippet lsp-metals lsp-ivy lsp-ui lsp-mode sbt-mode scala-mode use-package ag tt-mode php-mode org-mime load-dir json-mode erc-hl-nicks bufler znc ng2-mode forge counsel company tide projectile smex which-key magit cider clojure-mode exec-path-from-shell paredit))

@@ -70,7 +70,10 @@
 (use-package company
   :init (global-company-mode))
 
-(use-package clojure-mode)
+(use-package clojure-mode
+  :config
+  (require 'flycheck-clj-kondo))
+
 (use-package cperl-mode
   :config
   (setq cperl-indent-level 2)
@@ -249,6 +252,9 @@ See URL `http://stylelint.io/'."
 
 (use-package mode-line-bell
   :init (mode-line-bell-mode))
+
+(use-package flycheck-clj-kondo
+  :ensure t)
 
 (load "sexpers.el")
 (load "init-shell.el")
