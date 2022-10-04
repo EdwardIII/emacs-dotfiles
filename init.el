@@ -161,6 +161,9 @@ See URL `http://stylelint.io/'."
   (set-terminal-parameter nil 'background-mode 'dark)
   (set-frame-parameter nil 'background-mode 'dark))
 
+(use-package nord-theme
+  :init (load-theme 'nord t))
+
 (declare-function flycheck-add-mode "flycheck")
 (use-package typescript-mode
   :after (flycheck-mode)
@@ -250,6 +253,7 @@ See URL `http://stylelint.io/'."
 (use-package yasnippet)
 
 (use-package all-the-icons
+  ;; don't forget to M-x all-the-icons-install-fonts
   :if (display-graphic-p))
 
 (use-package doom-modeline
