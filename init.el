@@ -70,7 +70,10 @@
 (use-package company
   :init (global-company-mode))
 
-(use-package clojure-mode)
+(use-package clojure-mode
+  :config
+  (require 'flycheck-clj-kondo))
+
 (use-package cperl-mode
   :config
   (setq cperl-indent-level 2)
@@ -157,6 +160,9 @@ See URL `http://stylelint.io/'."
   (load-theme 'solarized-dark t)
   (set-terminal-parameter nil 'background-mode 'dark)
   (set-frame-parameter nil 'background-mode 'dark))
+
+(use-package nord-theme
+  :init (load-theme 'nord t))
 
 (declare-function flycheck-add-mode "flycheck")
 (use-package typescript-mode
@@ -247,6 +253,7 @@ See URL `http://stylelint.io/'."
 (use-package yasnippet)
 
 (use-package all-the-icons
+  ;; don't forget to M-x all-the-icons-install-fonts
   :if (display-graphic-p))
 
 (use-package doom-modeline
@@ -269,6 +276,9 @@ See URL `http://stylelint.io/'."
 
 (use-package mode-line-bell
   :init (mode-line-bell-mode))
+
+(use-package flycheck-clj-kondo
+  :ensure t)
 
 (use-package mhtml-mode
           ;; so ace-window keybindings don't get overridden
