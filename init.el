@@ -282,7 +282,8 @@ See URL `http://stylelint.io/'."
   (add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
   (define-key god-local-mode-map (kbd "z") #'repeat)
   (define-key god-local-mode-map (kbd "i") #'god-local-mode)
-  (global-set-key (kbd "C-i") #'god-local-mode))
+  (global-set-key (kbd "C-i") #'god-local-mode)
+  (add-to-list 'god-exempt-major-modes 'vterm-mode))
 
 (load "sexpers.el")
 (load "init-shell.el")
