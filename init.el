@@ -36,6 +36,17 @@
 ;; Load before packages are started - fixes issues where
 ;; these vars are required at startup time
 (add-to-list 'load-path "~/.emacs.d/customisations")
+
+;; Manually installed packages.
+;; Usually put here because I need to patch them
+(add-to-list 'load-path (concat user-emacs-directory "lisp/nord-emacs/" ))
+(defun init-nord-theme (&optional _)
+  "Initialise the nord theme."
+  (load "nord-theme")
+  (load-theme 'nord t))
+;; https://emacs.stackexchange.com/a/3337
+(add-hook 'after-make-frame-functions 'init-nord-theme)
+
 (setq-default indent-tabs-mode nil)
 (setq save-interprogram-paste-before-kill t
       ;apropos-do-all t
@@ -155,14 +166,11 @@ See URL `http://stylelint.io/'."
   :bind (:map projectile-mode-map
               ("s-p" . projectile-command-map)))
 
-(use-package solarized-theme  ;; https://github.com/bbatsov/solarized-emacs
-  :init
-  (load-theme 'solarized-dark t)
-  (set-terminal-parameter nil 'background-mode 'dark)
-  (set-frame-parameter nil 'background-mode 'dark))
-
-(use-package nord-theme
-  :init (load-theme 'nord t))
+;; (use-package solarized-theme  ;; https://github.com/bbatsov/solarized-emacs
+;;   :init
+;;   (load-theme 'solarized-dark t)
+;;   (set-terminal-parameter nil 'background-mode 'dark)
+;;   (set-frame-parameter nil 'background-mode 'dark))
 
 (declare-function flycheck-add-mode "flycheck")
 (use-package typescript-mode
@@ -203,6 +211,7 @@ See URL `http://stylelint.io/'."
   :hook
   (ruby-mode . lsp)
   (scss-mode . lsp) ;; don't forget to M-x lsp-install-server RET css-ls RET
+  (json-mode . lsp)
   (lsp-mode . lsp-lens-mode)
 
   :config
@@ -494,6 +503,15 @@ Outputs the results to a dedicated buffer."
   (shell-command "node -r ts-node/register index.ts" "*ts-eval*")
   (with-current-buffer "*ts-eval*" (js-mode)
                        (setq-local flycheck-disabled-checkers '(javascript-eslint))))
+
+;; (use-package nord-theme
+;;   :after color
+;;   :config
+;;   (load-theme 'nord t))
+;;   ;; (set-terminal-parameter nil 'background-mode 'dark)
+;;   ;; (set-frame-parameter nil 'background-mode 'dark))
+
+
 
 (global-set-key (kbd "C-c t e") 'ep/ts-eval)
 

@@ -24,6 +24,7 @@
 
 ;;; Code:
 
+;;;###autoload
 (define-derived-mode label-mode text-mode "Label"
   "Major mode for editing translation files written in the LABEL format.
 Based on \"text-mode\", but enables spell checking by default.
