@@ -99,6 +99,7 @@
 (use-package json-mode
   :hook (json-mode . flycheck-mode))
 (use-package ivy
+  :bind (("C-'" . 'avy-goto-char-2))
   :init
   (ivy-mode)
   (setq ivy-use-virtual-buffers t)
