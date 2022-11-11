@@ -417,6 +417,8 @@ See URL `http://stylelint.io/'."
 ;; TODO: eh?
 (global-set-key (kbd "C-c u") #'ffap-next-url)
 
+(global-set-key [remap dabbrev-expand] 'hippie-expand)
+
 (defun ep/find-files (path criteria)
   "Search PATH for all files matching CRITERIA, a glob."
   (process-lines "find" path "-name" criteria))
@@ -504,6 +506,7 @@ Outputs the results to a dedicated buffer."
   (shell-command "node -r ts-node/register index.ts" "*ts-eval*")
   (with-current-buffer "*ts-eval*" (js-mode)
                        (setq-local flycheck-disabled-checkers '(javascript-eslint))))
+(global-set-key (kbd "C-c t e") 'ep/ts-eval)
 
 ;; (use-package nord-theme
 ;;   :after color
@@ -512,9 +515,35 @@ Outputs the results to a dedicated buffer."
 ;;   ;; (set-terminal-parameter nil 'background-mode 'dark)
 ;;   ;; (set-frame-parameter nil 'background-mode 'dark))
 
+(defun ep/make-window-atomic ()
+  "Make the current window atomic.  Stops Emacs splitting it."
+  (interactive)
+  (window-make-atom (window-parent (selected-window))))
 
+(defun ep/toggle-window-dedication ()
+  "Toggle window dedication in the selected window."
+  (interactive)
+  (set-window-dedicated-p (selected-window)
+     (not (window-dedicated-p (selected-window)))))
 
-(global-set-key (kbd "C-c t e") 'ep/ts-eval)
+(defun ep/permanent-window ()
+  "Make the window dedicated and atomic.
+Dedicated = Emacs won't re-use it.
+Atomic = Emacs won't split it."
+  (interactive)
+
+  (set-window-dedicated-p (selected-window) t)
+  (ep/make-window-atomic))
+
+(defun ep/send-to-bottom ()
+  "Send the current buffer to a bottom sidebar."
+   (display-buffer-in-side-window (current-buffer) '((side . bottom))))
+
+;; Do something like this to create an atomic window that
+;; emacs won't keep trying to split apart:
+;; (window-list-1) ;; figure out which window you want
+;; (window-make-atom (window-parent (nth 3 (window-list))))
+
 
 (provide 'init)
 ;;; init.el ends here
