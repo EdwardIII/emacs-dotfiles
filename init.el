@@ -303,7 +303,7 @@ See URL `http://stylelint.io/'."
   (define-key god-local-mode-map (kbd "z") #'repeat)
   (define-key god-local-mode-map (kbd "i") #'god-local-mode)
   (global-set-key (kbd "C-i") #'god-local-mode)
-  (add-to-list 'god-exempt-major-modes 'vterm-mode))
+  (add-to-list 'god-exempt-major-modes 'vterm-mode 'circle-channel-mode))
 
 (load "sexpers.el")
 (load "init-shell.el")
@@ -515,35 +515,9 @@ Outputs the results to a dedicated buffer."
 ;;   ;; (set-terminal-parameter nil 'background-mode 'dark)
 ;;   ;; (set-frame-parameter nil 'background-mode 'dark))
 
-(defun ep/make-window-atomic ()
-  "Make the current window atomic.  Stops Emacs splitting it."
-  (interactive)
-  (window-make-atom (window-parent (selected-window))))
-
-(defun ep/toggle-window-dedication ()
-  "Toggle window dedication in the selected window."
-  (interactive)
-  (set-window-dedicated-p (selected-window)
-     (not (window-dedicated-p (selected-window)))))
-
-(defun ep/permanent-window ()
-  "Make the window dedicated and atomic.
-Dedicated = Emacs won't re-use it.
-Atomic = Emacs won't split it."
-  (interactive)
-
-  (set-window-dedicated-p (selected-window) t)
-  (ep/make-window-atomic))
-
 (defun ep/send-to-bottom ()
   "Send the current buffer to a bottom sidebar."
    (display-buffer-in-side-window (current-buffer) '((side . bottom))))
-
-;; Do something like this to create an atomic window that
-;; emacs won't keep trying to split apart:
-;; (window-list-1) ;; figure out which window you want
-;; (window-make-atom (window-parent (nth 3 (window-list))))
-
 
 (provide 'init)
 ;;; init.el ends here
