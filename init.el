@@ -181,18 +181,25 @@ See URL `http://stylelint.io/'."
   (flycheck-add-mode 'typescript-tslint 'web-mode))
 
 (use-package tide
-  :preface   (defun setup-tide-mode ()
-               (tide-setup)
-               (flycheck-mode +1)
-               (setq flycheck-check-syntax-automatically '(save mode-enabled))
-               (eldoc-mode +1)
-               (tide-hl-identifier-mode +1)
-               (company-mode +1))
+  :preface
+  (require 'tide)
+  (defun ep/ts-format ()
+    "Reformat the whole buffer without changing point."
+    (interactive)
+    (tide-format-region (point-min) (point-max)))
+
+  (defun setup-tide-mode ()
+    (tide-setup)
+    (flycheck-mode +1)
+    (setq flycheck-check-syntax-automatically '(save mode-enabled))
+    (eldoc-mode +1)
+    (tide-hl-identifier-mode +1)
+    (company-mode +1))
   :mode ("\\.ts" . typescript-mode)
   :hook ((typescript-mode . setup-tide-mode)
          (ng2-ts-mode . setup-tide-mode))
   :bind (("C-c t f" . tide-fix)
-         ("C-c t o" . tide-format)
+         ("C-c t o" . ep/ts-format) ;; I personally override this in a file not commited to this repo
          ("C-c t r" . tide-rename-symbol))
   :config
   (setq company-tooltip-align-annotations t)
@@ -295,15 +302,25 @@ See URL `http://stylelint.io/'."
   :config (define-key mhtml-mode-map (kbd "M-o") nil))
 
 (use-package god-mode
+  :preface
+  (defun ep-god-mode-off () (interactive) (god-mode-activate -1) (newline nil 'interactive))
+  (defun ep-god-mode-on () (interactive) (god-mode-activate t))
   :init (god-mode)
 
+  :bind (
+         ("RET" . ep-god-mode-off)
+         ("C-i" . #'god-local-mode)
+         :map god-local-mode-map
+         ("TAB" . indent-for-tab-command)
+         ("i" . #'god-local-mode)
+         ("z" . #'repeat))
+  
+  :config
   (defun my-god-mode-update-cursor-type ()
     (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
   (add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
-  (define-key god-local-mode-map (kbd "z") #'repeat)
-  (define-key god-local-mode-map (kbd "i") #'god-local-mode)
-  (global-set-key (kbd "C-i") #'god-local-mode)
-  (add-to-list 'god-exempt-major-modes 'vterm-mode 'circle-channel-mode))
+  (add-to-list 'god-exempt-major-modes 'vterm-mode 'circe-channel-mode)
+  (add-hook 'before-save-hook #'ep-god-mode-on))
 
 (load "sexpers.el")
 (load "init-shell.el")
@@ -517,7 +534,8 @@ Outputs the results to a dedicated buffer."
 
 (defun ep/send-to-bottom ()
   "Send the current buffer to a bottom sidebar."
-   (display-buffer-in-side-window (current-buffer) '((side . bottom))))
+  (display-buffer-in-side-window (current-buffer) '((side . bottom))))
+
 
 (provide 'init)
 ;;; init.el ends here
