@@ -37,15 +37,16 @@
 ;; these vars are required at startup time
 (add-to-list 'load-path "~/.emacs.d/customisations")
 
-;; Manually installed packages.
-;; Usually put here because I need to patch them
-(add-to-list 'load-path (concat user-emacs-directory "lisp/nord-emacs/" ))
-(defun init-nord-theme (&optional _)
-  "Initialise the nord theme."
-  (load "nord-theme")
-  (load-theme 'nord t))
-;; https://emacs.stackexchange.com/a/3337
-(add-hook 'after-make-frame-functions 'init-nord-theme)
+(use-package nord-theme
+  :config
+  (defun init-nord-theme (frame)
+    "Initialise the nord theme. Unloads itself after being used once."
+    (with-selected-frame frame (load-theme 'nord t))
+    (remove-hook 'after-make-frame-functions #'init-nord-theme))
+
+  ;; so we still get the theme in not-daemon-mode
+  (when (frame-list) (load-theme 'nord t))
+  (add-hook 'after-make-frame-functions #'init-nord-theme)) ; in daemon mode the theme is started again after the gui first opens
 
 (setq-default indent-tabs-mode nil)
 (setq save-interprogram-paste-before-kill t
@@ -166,12 +167,6 @@ See URL `http://stylelint.io/'."
                                     :test-suffix ".spec.ts")
   :bind (:map projectile-mode-map
               ("s-p" . projectile-command-map)))
-
-;; (use-package solarized-theme  ;; https://github.com/bbatsov/solarized-emacs
-;;   :init
-;;   (load-theme 'solarized-dark t)
-;;   (set-terminal-parameter nil 'background-mode 'dark)
-;;   (set-frame-parameter nil 'background-mode 'dark))
 
 (declare-function flycheck-add-mode "flycheck")
 (use-package typescript-mode
@@ -524,13 +519,6 @@ Outputs the results to a dedicated buffer."
   (with-current-buffer "*ts-eval*" (js-mode)
                        (setq-local flycheck-disabled-checkers '(javascript-eslint))))
 (global-set-key (kbd "C-c t e") 'ep/ts-eval)
-
-;; (use-package nord-theme
-;;   :after color
-;;   :config
-;;   (load-theme 'nord t))
-;;   ;; (set-terminal-parameter nil 'background-mode 'dark)
-;;   ;; (set-frame-parameter nil 'background-mode 'dark))
 
 (defun ep/send-to-bottom ()
   "Send the current buffer to a bottom sidebar."
