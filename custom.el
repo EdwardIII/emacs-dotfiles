@@ -11,6 +11,7 @@
  '(circe-lagmon-mode t)
  '(circe-reduce-lurker-spam t)
  '(circe-track-faces-priorities '(circe-highlight-nick-face))
+ '(company-dabbrev-downcase nil)
  '(cperl-indent-parens-as-block t)
  '(css-indent-offset 2)
  '(dabbrev-case-fold-search t)
@@ -33,7 +34,7 @@
  '(org-confirm-babel-evaluate nil)
  '(org-link-shell-confirm-function nil)
  '(package-selected-packages
-   '(browse-kill-ring nord-theme god-mode mode-line-bell ts-comint yafolding sqlformat elisp-mode elisp circe-notifications circe-color-nicks circe elisp-format js-mode vterm nvm exwm web-mode cperl guru-mode doom-modeline solarized-theme yasnippet lsp-metals lsp-ivy lsp-ui lsp-mode sbt-mode scala-mode use-package ag tt-mode php-mode org-mime load-dir json-mode erc-hl-nicks bufler znc ng2-mode forge counsel company tide projectile smex which-key magit cider clojure-mode exec-path-from-shell paredit))
+   '(slime browse-kill-ring nord-theme god-mode mode-line-bell ts-comint yafolding sqlformat elisp-mode elisp circe-notifications circe-color-nicks circe elisp-format js-mode vterm nvm exwm web-mode cperl guru-mode doom-modeline solarized-theme yasnippet lsp-metals lsp-ivy lsp-ui lsp-mode sbt-mode scala-mode use-package ag tt-mode php-mode org-mime load-dir json-mode erc-hl-nicks bufler znc ng2-mode forge counsel company tide projectile smex which-key magit cider clojure-mode exec-path-from-shell paredit))
  '(projectile-globally-ignored-directories
    '(".idea" ".vscode" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".pijul" ".tox" ".svn" ".stack-work" ".ccls-cache" ".cache" ".clangd" "*node_modules" "*baseline" "*swagger-ui-dist"))
  '(projectile-globally-ignored-file-suffixes '("jar" "bin" "js.map"))
