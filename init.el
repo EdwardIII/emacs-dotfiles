@@ -142,6 +142,11 @@ See URL `http://stylelint.io/'."
     :standard-input t
     :error-parser flycheck-parse-stylelint
     :modes (scss-mode)))
+
+;; If you want fuzzy matching, check out:
+;; https://gitlab.com/com-informatimago/emacs/-/blob/master/pjb-clelp.el
+;; https://gitlab.com/com-informatimago/emacs/-/blob/master/pjb-sources.el#L3538
+;; Or maybe vertico + orderless?
 (use-package counsel
   :init
   (counsel-mode)
@@ -215,6 +220,8 @@ See URL `http://stylelint.io/'."
   (ruby-mode . lsp)
   (scss-mode . lsp) ;; don't forget to M-x lsp-install-server RET css-ls RET
   (json-mode . lsp)
+  ;; for angular html integration don't forget to select the right version number and run: npm install -g @angular/language-service@next typescript @angular/language-server@v12.2.3
+  (mhtml-mode . lsp)
   (lsp-mode . lsp-lens-mode)
 
   :config
@@ -309,13 +316,21 @@ See URL `http://stylelint.io/'."
          ("TAB" . indent-for-tab-command)
          ("i" . #'god-local-mode)
          ("z" . #'repeat))
-  
+
   :config
   (defun my-god-mode-update-cursor-type ()
     (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
   (add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
   (add-to-list 'god-exempt-major-modes 'vterm-mode 'circe-channel-mode)
   (add-hook 'before-save-hook #'ep-god-mode-on))
+
+(use-package button-lock
+  :preface (defun setup-buttonlock () 
+             (button-lock-mode) 
+             (button-lock-set-button "\\<https://[^[:space:]\n]+" 'browse-url-at-mouse 
+                                     :face 'link 
+                                     :face-policy 'prepend)) 
+  :hook ((vterm-mode . setup-buttonlock)))
 
 (load "sexpers.el")
 (load "init-shell.el")
