@@ -37,6 +37,10 @@
 ;; these vars are required at startup time
 (add-to-list 'load-path "~/.emacs.d/customisations")
 
+;; ;; TODO: Do this automatically
+(setenv "PERL_MB_OPT" "--install_base \"/home/edward/perl5\""); export PERL_MB_OPT;
+(setenv "PERL_MM_OPT" "INSTALL_BASE=/home/edward/perl5"); export PERL_MM_OPT;
+
 (use-package nord-theme
   :config
   (defun init-nord-theme (frame)
@@ -107,11 +111,8 @@
   (setq ivy-count-format "(%d/%d) ")
   (global-set-key (kbd "C-s") 'swiper-isearch))
 (use-package flycheck
-  :init (global-flycheck-mode)
+  :init
   (global-flycheck-mode)
-  (setq-default flycheck-disabled-checker '(emacs-lisp-checkdoc))
-  (add-hook 'after-init-hook #'global-flycheck-mode)
-
   ;; be sure to install the following to get scss support:
   ;; npm install -g npm install stylelint stylelint-scss stylelint-config-standard-scss
   ;; Then add something like the following to ~/.stylelintrc.json:
@@ -173,14 +174,8 @@ See URL `http://stylelint.io/'."
   :bind (:map projectile-mode-map
               ("s-p" . projectile-command-map)))
 
-(declare-function flycheck-add-mode "flycheck")
-(use-package typescript-mode
-  :after (flycheck-mode)
-  :init
-
-  (flycheck-add-mode 'typescript-tslint 'web-mode))
-
 (use-package tide
+  :after (company flycheck)
   :preface
   (require 'tide)
   (defun ep/ts-format ()
@@ -189,18 +184,27 @@ See URL `http://stylelint.io/'."
     (tide-format-region (point-min) (point-max)))
 
   (defun setup-tide-mode ()
+    ;;; Must define our own as the tide-provided one doesn't trigger under typescript-tide-ts
+    (flycheck-define-generic-checker 'typescript-tide-ts
+      "A TypeScript syntax checker using tsserver."
+      :start #'tide-flycheck-start
+      :verify #'tide-flycheck-verify
+      :modes '(typescript-mode typescript-ts-mode)
+      :predicate #'tide-flycheck-predicate)
+    (setq-local flycheck-disabled-checkers '(typescript-tslint javascript-eslint))
     (tide-setup)
     (flycheck-mode +1)
     (setq flycheck-check-syntax-automatically '(save mode-enabled))
     (eldoc-mode +1)
-    (tide-hl-identifier-mode +1)
+    ;; (tide-hl-identifier-mode +1)
     (company-mode +1))
-  :mode ("\\.ts" . typescript-mode)
+  :mode ("\\.ts" . typescript-ts-mode)
   :hook ((typescript-mode . setup-tide-mode)
-         (ng2-ts-mode . setup-tide-mode))
+         (typescript-ts-mode . setup-tide-mode))
   :bind (("C-c t f" . tide-fix)
          ("C-c t o" . ep/ts-format) ;; I personally override this in a file not commited to this repo
-         ("C-c t r" . tide-rename-symbol))
+         ("C-c t r" . tide-rename-symbol)
+         ("C-c ."   . tide-documentation-at-point))
   :config
   (setq company-tooltip-align-annotations t)
   (setq typescript-indent-level 2)
@@ -222,6 +226,7 @@ See URL `http://stylelint.io/'."
   (json-mode . lsp)
   ;; for angular html integration don't forget to select the right version number and run: npm install -g @angular/language-service@next typescript @angular/language-server@v12.2.3
   (mhtml-mode . lsp)
+  (cperl-mode . lsp)
   (lsp-mode . lsp-lens-mode)
 
   :config
@@ -236,21 +241,28 @@ See URL `http://stylelint.io/'."
   (declare-function lsp--set-configuration "lsp-mode")
   (declare-function lsp-configuration-section "lsp-mode")
 
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-tramp-connection
-                                     (lambda ()
-                                       (list "perl"
-                                             "-MPerl::LanguageServer" "-e" "Perl::LanguageServer::run" "--"
-                                             (format "--port %d --version %s"
-                                                     13603 "2.1.0"))))
-                    :major-modes '(perl-mode cperl-mode)
-                    :initialized-fn (lambda (workspace)
-                                      (with-lsp-workspace workspace
-                                        (lsp--set-configuration
-                                         (lsp-configuration-section "perl"))))
-                    :priority -2
-                    :server-id 'perl-language-server-remote
-                    :remote? t)))
+  ;; (lsp-register-client
+  ;;  (make-lsp-client :new-connection (lsp-stdio-connection
+  ;;                                    (lambda ()
+  ;;                                      (list lsp-perl-language-server-path
+  ;;                                            "-MPerl::LanguageServer" "-e" "Perl::LanguageServer::run"
+  ;;                                                                                                                                      "-Ilib"
+  ;;                                            "--"
+  ;;                                                                                         "-Ilib"
+
+  ;;                                            (format "--port %d --version %s"
+  ;;                                                    lsp-perl-language-server-port lsp-perl-language-server-client-version))))
+  ;;                   :major-modes '(perl-mode cperl-mode)
+  ;;                   :initialized-fn (lambda (workspace)
+  ;;                                     (with-lsp-workspace workspace
+  ;;                                       (lsp--set-configuration
+  ;;                                        (lsp-configuration-section "perl"))))
+  ;;                   :priority 2
+  ;;                   :environment-fn (lambda () '(("PERL_MB_OPT" . "--install_base \"/home/edward/perl5\"")
+  ;;                                                ("PERL_MM_OPT" . "\"INSTALL_BASE=/home/edward/perl5\"")
+  ;;                                                ("PERL5LIB" . "/home/edward/perl5/lib/perl5:./lib:./WCN/lib")))
+  ;;                   :server-id 'perl-language-server-local-lib))
+  )
 
 (use-package
   dap-mode
@@ -325,12 +337,13 @@ See URL `http://stylelint.io/'."
   (add-hook 'before-save-hook #'ep-god-mode-on))
 
 (use-package button-lock
-  :preface (defun setup-buttonlock () 
-             (button-lock-mode) 
-             (button-lock-set-button "\\<https://[^[:space:]\n]+" 'browse-url-at-mouse 
-                                     :face 'link 
-                                     :face-policy 'prepend)) 
-  :hook ((vterm-mode . setup-buttonlock)))
+  :preface (defun setup-buttonlock ()
+             (button-lock-mode)
+             (button-lock-set-button "\\<https://[^[:space:]\n]+" 'browse-url-at-mouse
+                                     :face 'link
+                                     :face-policy 'prepend))
+  :hook ((vterm-mode . setup-buttonlock)
+         (magit-process-mode . setup-buttonlock)))
 
 (load "sexpers.el")
 (load "init-shell.el")
@@ -342,7 +355,7 @@ See URL `http://stylelint.io/'."
 
 (global-set-key (kbd "C-<return>") 'set-mark-command)
 
-(global-linum-mode)
+(global-display-line-numbers-mode)
 (blink-cursor-mode 0)
 
 (setq gc-cons-threshold 100000000) ;; 100mb
@@ -433,6 +446,8 @@ See URL `http://stylelint.io/'."
       (kmacro-lambda-form [?\M-x ?f ?l ?y ?c ?h return ?\C-c ?t ?f] 0 "%d"))
 
 (setq create-lockfiles nil)
+
+(setq max-mini-window-height 10)
 
 (require 'ffap)
 (defun browse-last-url-in-brower ()
@@ -539,6 +554,13 @@ Outputs the results to a dedicated buffer."
   "Send the current buffer to a bottom sidebar."
   (display-buffer-in-side-window (current-buffer) '((side . bottom))))
 
+(defun ep/aggregate-commits ()
+  "Show titles & messages for all commits on this branch."
+  (interactive)
+  (magit-git-command-topdir "git log --reverse --format='### %s%n%n%b' ^master HEAD"))
+
+(require 'treesit)
+(setq  treesit-extra-load-path '("/home/edward/src/tree-sitter-module/dist"))
 
 (provide 'init)
 ;;; init.el ends here
