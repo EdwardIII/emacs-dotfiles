@@ -71,8 +71,13 @@
 (use-package nvm
   :hook
   (typescript-mode . nvm-use-for-buffer)
-  ; because scss depends on a node interpreter
-  (scss-mode . nvm-use-for-buffer))
+  (typescript-ts-mode . nvm-use-for-buffer)
+  (mhtml-mode . nvm-use-for-buffer)
+  (scss-mode . nvm-use-for-buffer)) ;; because scss depends on a node interpreter
+(use-package mhtml-mode
+  :after nvm)
+(use-package scss-mode
+  :after nvm)
 (use-package php-mode)
 (use-package magit
   :config)
@@ -175,7 +180,7 @@ See URL `http://stylelint.io/'."
               ("s-p" . projectile-command-map)))
 
 (use-package tide
-  :after (company flycheck)
+  :after (company flycheck nvm)
   :preface
   (require 'tide)
   (defun ep/ts-format ()
@@ -344,6 +349,13 @@ See URL `http://stylelint.io/'."
                                      :face-policy 'prepend))
   :hook ((vterm-mode . setup-buttonlock)
          (magit-process-mode . setup-buttonlock)))
+
+;; All required by code-compass
+(use-package async)
+(use-package dash)
+(use-package f)
+(use-package s)
+(use-package simple-httpd)
 
 (load "sexpers.el")
 (load "init-shell.el")
