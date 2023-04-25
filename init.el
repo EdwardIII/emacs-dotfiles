@@ -147,7 +147,14 @@ See URL `http://stylelint.io/'."
               (config-file "--config" flycheck-stylelintrc))
     :standard-input t
     :error-parser flycheck-parse-stylelint
-    :modes (scss-mode)))
+    :modes (scss-mode))
+
+  (defhydra hydra-flycheck (global-map "C-c C-c")
+    "flycheck errors"
+    ("n" flycheck-next-error "next")
+    ("p" flycheck-previous-error "previous")
+    ("f" tide-fix "typescript fix")
+    ("RET" nil "cancel")))
 
 ;; If you want fuzzy matching, check out:
 ;; https://gitlab.com/com-informatimago/emacs/-/blob/master/pjb-clelp.el
@@ -220,7 +227,6 @@ See URL `http://stylelint.io/'."
                               :tabSize 2
                               :placeOpenBraceOnNewLineForFunctions nil
                               :placeOpenBraceOnNewLineForControlBlocks nil)))
-
 (use-package lsp-mode
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
   :init (setq lsp-keymap-prefix "C-c l")
@@ -231,7 +237,7 @@ See URL `http://stylelint.io/'."
   (json-mode . lsp)
   ;; for angular html integration don't forget to select the right version number and run: npm install -g @angular/language-service@next typescript @angular/language-server@v12.2.3
   (mhtml-mode . lsp)
-  (cperl-mode . lsp)
+  ;; (cperl-mode . lsp)
   (lsp-mode . lsp-lens-mode)
 
   :config
@@ -571,8 +577,17 @@ Outputs the results to a dedicated buffer."
   (interactive)
   (magit-git-command-topdir "git log --reverse --format='### %s%n%n%b' ^master HEAD"))
 
-(require 'treesit)
-(setq  treesit-extra-load-path '("/home/edward/src/tree-sitter-module/dist"))
+(defun ep/frame= (frame-name frame)
+  "Does the FRAME have the given FRAME-NAME?"
+  (unless (framep frame) (error "FRAME must be a frame object"))
+  (string-equal (frame-parameter frame 'name) frame-name))
+
+(defun ep/frame-by-name (name)
+  "Get frame by NAME, string.  nil if not found."
+  (car
+   (seq-filter
+    (lambda (x) (ep/frame= name x))
+    (frame-list))))
 
 (provide 'init)
 ;;; init.el ends here
