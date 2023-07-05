@@ -68,19 +68,11 @@
 (use-package ag)
 (use-package ace-window
   :init (global-set-key (kbd "M-o") 'ace-window))
-(use-package nvm
-  :hook
-  (typescript-mode . nvm-use-for-buffer)
-  (typescript-ts-mode . nvm-use-for-buffer)
-  (mhtml-mode . nvm-use-for-buffer)
-  (scss-mode . nvm-use-for-buffer)) ;; because scss depends on a node interpreter
-(use-package mhtml-mode
-  :after nvm)
-(use-package scss-mode
-  :after nvm)
+
+(use-package mhtml-mode)
+(use-package scss-mode)
 (use-package php-mode)
-(use-package magit
-  :config)
+(use-package magit)
 
 (use-package js)
 
@@ -187,7 +179,8 @@ See URL `http://stylelint.io/'."
               ("s-p" . projectile-command-map)))
 
 (use-package tide
-  :after (company flycheck nvm)
+  :after (company
+          flycheck)
   :preface
   (require 'tide)
   (defun ep/ts-format ()
@@ -330,8 +323,9 @@ See URL `http://stylelint.io/'."
   :preface
   (defun ep-god-mode-off () (interactive) (god-mode-activate -1) (newline nil 'interactive))
   (defun ep-god-mode-on () (interactive) (god-mode-activate t))
+  (defun ep/push-mark-silent () (interactive) (push-mark (point) t nil))
+  :hook (god-local-mode . push-mark)
   :init (god-mode)
-
   :bind (
          ("RET" . ep-god-mode-off)
          ("C-i" . #'god-local-mode)
@@ -356,12 +350,18 @@ See URL `http://stylelint.io/'."
   :hook ((vterm-mode . setup-buttonlock)
          (magit-process-mode . setup-buttonlock)))
 
-;; All required by code-compass
-(use-package async)
+(use-package multiple-cursors
+  :hook (prog-mode . multiple-cursors-mode)
+  :bind ("C-M-SPC" . mc/mark-next-like-this))
+
+;; All required by copilot.el
 (use-package dash)
-(use-package f)
 (use-package s)
-(use-package simple-httpd)
+(add-to-list 'load-path (concat user-emacs-directory "vendor/copilot/"))
+(require 'copilot)
+(add-hook 'prog-mode-hook 'copilot-mode)
+(define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+(define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
 
 (load "sexpers.el")
 (load "init-shell.el")
@@ -441,10 +441,6 @@ See URL `http://stylelint.io/'."
 (setq tramp-verbose 0)
 (setq tramp-use-ssh-controlmaster-options nil)
 (setq projectile--mode-line "Projectile")
-
-(with-eval-after-load "tramp" (add-to-list 'tramp-connection-properties
-             (list (regexp-quote "/ssh:user@host:")
-                   "direct-async-process" t)))
 
 (require 'browse-url)
 (setq browse-url-generic-program (if (eq window-system 'ns) "open" "google-chrome-stable")
