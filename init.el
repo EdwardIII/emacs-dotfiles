@@ -212,7 +212,6 @@ See URL `http://stylelint.io/'."
          ("C-c ."   . tide-documentation-at-point))
   :config
   (setq company-tooltip-align-annotations t)
-  (setq typescript-indent-level 2)
   (setq tide-format-options '(
                               :insertSpaceAfterFunctionKeywordForAnonymousFunctions t
                               :placeOpenBraceOnNewLineForFunctions nil
@@ -357,11 +356,14 @@ See URL `http://stylelint.io/'."
 ;; All required by copilot.el
 (use-package dash)
 (use-package s)
-(add-to-list 'load-path (concat user-emacs-directory "vendor/copilot/"))
-(require 'copilot)
-(add-hook 'prog-mode-hook 'copilot-mode)
-(define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
-(define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+(add-to-list 'load-path (expand-file-name "vendor/copilot/" user-emacs-directory))
+(use-package copilot
+  :ensure nil
+  :requires (dash s)
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-mode-map
+              ("<tab>" . copilot-accept-completion)
+              ("TAB"   . copilot-accept-completion)))
 
 (load "sexpers.el")
 (load "init-shell.el")
