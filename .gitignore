@@ -24,3 +24,6 @@ eln-cache/
 url/
 bookmarks
 tree-sitter/
+multisession/
+vendor/combobulate/
+.mc-lists.el

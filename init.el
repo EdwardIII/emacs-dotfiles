@@ -30,8 +30,8 @@
 
 (require 'use-package-ensure) ; install every package if not already there
 (setq ; use-package-always-defer t ; only load packages when they're used. stops :config being caled when you think it does
-      use-package-always-ensure t
-      use-package-verbose t)
+ use-package-always-ensure t
+ use-package-verbose t)
 
 ;; Load before packages are started - fixes issues where
 ;; these vars are required at startup time
@@ -54,11 +54,11 @@
 
 (setq-default indent-tabs-mode nil)
 (setq save-interprogram-paste-before-kill t
-      ;apropos-do-all t
+                                        ;apropos-do-all t
       require-final-newline t
-      ;visible-bell t
+                                        ;visible-bell t
       load-prefer-newer t
-      ;ediff-window-setup-function 'ediff-setup-windows-plain
+                                        ;ediff-window-setup-function 'ediff-setup-windows-plain
       custom-file (expand-file-name "~/.emacs.d/custom.el"))
 (load custom-file)
 
@@ -94,8 +94,8 @@
 (use-package exec-path-from-shell
   :init (when (memq window-system '(mac ns x))
           (exec-path-from-shell-initialize))
-        (when (daemonp)
-          (exec-path-from-shell-initialize)))
+  (when (daemonp)
+    (exec-path-from-shell-initialize)))
 (use-package bufler
   :bind (("C-x C-b" . bufler)))
 (use-package json-mode
@@ -158,7 +158,8 @@ See URL `http://stylelint.io/'."
   :bind (("M-x" . 'counsel-M-x)
          ( "C-c k" . 'counsel-ag)))
 (use-package which-key
-  :init (which-key-mode))
+  :init (which-key-mode)
+  :config (setq which-key-allow-imprecise-window-fit nil))
 (use-package tt-mode
   :init
   (autoload 'tt-mode "tt-mode")
@@ -315,7 +316,7 @@ See URL `http://stylelint.io/'."
   :ensure t)
 
 (use-package mhtml-mode
-          ;; so ace-window keybindings don't get overridden
+  ;; so ace-window keybindings don't get overridden
   :config (define-key mhtml-mode-map (kbd "M-o") nil))
 
 (use-package god-mode
@@ -323,7 +324,10 @@ See URL `http://stylelint.io/'."
   (defun ep-god-mode-off () (interactive) (god-mode-activate -1) (newline nil 'interactive))
   (defun ep-god-mode-on () (interactive) (god-mode-activate t))
   (defun ep/push-mark-silent () (interactive) (push-mark (point) t nil))
-  :hook (god-local-mode . push-mark)
+  :hook (god-local-mode . ep/push-mark-silent)
+  :after (copilot ; so we can stomp copilot's tab keybinding in god mode
+          flycheck
+          tide)
   :init (god-mode)
   :bind (
          ("RET" . ep-god-mode-off)
@@ -347,11 +351,24 @@ See URL `http://stylelint.io/'."
                                      :face 'link
                                      :face-policy 'prepend))
   :hook ((vterm-mode . setup-buttonlock)
-         (magit-process-mode . setup-buttonlock)))
+         (magit-process-mode . setup-buttonlock)
+         (comint-mode . setup-buttonlock)))
 
-(use-package multiple-cursors
-  :hook (prog-mode . multiple-cursors-mode)
-  :bind ("C-M-SPC" . mc/mark-next-like-this))
+(use-package combobulate
+  :preface
+  ;; You can customize Combobulate's key prefix here.
+  ;; Note that you may have to restart Emacs for this to take effect!
+  (setq combobulate-key-prefix "C-c o")
+
+  :hook ((js-ts-mode . combobulate-mode)
+         (css-ts-mode . combobulate-mode)
+         (yaml-ts-mode . combobulate-mode)
+         (json-ts-mode . combobulate-mode)
+         (typescript-ts-mode . combobulate-mode)
+         (tsx-ts-mode . combobulate-mode))
+  ;; Amend this to the directory where you keep Combobulate's source
+  ;; code.
+  :load-path (lambda () (expand-file-name "vendor/combobulate/" user-emacs-directory)))
 
 ;; All required by copilot.el
 (use-package dash)
@@ -362,18 +379,28 @@ See URL `http://stylelint.io/'."
   :requires (dash s)
   :hook (prog-mode . copilot-mode)
   :bind (:map copilot-mode-map
-              ("<tab>" . copilot-accept-completion)
               ("TAB"   . copilot-accept-completion)))
+
+(use-package ediff
+  :ensure nil
+  :config
+  (setq ediff-split-window-function 'split-window-horizontally)
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain))
+
+(use-package better-jumper
+  :init (better-jumper-mode +1))
+
 
 (load "sexpers.el")
 (load "init-shell.el")
 (load "init-tide.el")
 (load "init-irc.el")
-;(load "init-mu4e.el")
 
 (set-face-attribute 'default nil :height 140)
 
 (global-set-key (kbd "C-<return>") 'set-mark-command)
+(global-set-key (kbd "C-o") 'pop-global-mark)
+
 
 (global-display-line-numbers-mode)
 (blink-cursor-mode 0)
@@ -381,7 +408,7 @@ See URL `http://stylelint.io/'."
 (setq gc-cons-threshold 100000000) ;; 100mb
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
 (setq backup-directory-alist
-          `((".*" . ,(concat user-emacs-directory "backups/"))))
+      `((".*" . ,(concat user-emacs-directory "backups/"))))
 (setq auto-save-file-name-transforms
       `((".*" ,(concat user-emacs-directory "backups/") t)))
 (setq inhibit-startup-screen t)
@@ -419,22 +446,16 @@ See URL `http://stylelint.io/'."
  'org-babel-load-languages
  '((dot . t)))
 
-(global-set-key (kbd "C-s") 'isearch-forward-regexp)
 (global-set-key (kbd "C-r") 'isearch-backward-regexp)
 (global-set-key (kbd "C-M-s") 'isearch-forward)
 (global-set-key(kbd "C-M-r") 'isearch-backward)
-
-;; I don't want ng2-ts-mode, only ng2-html-mode, so I force typescript-mode
-;; to stop ng2-ts-mode from taking over .ts files
-;(add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
-
 
 ;; Speed up tramp
 (setq remote-file-name-inhibit-cache nil)
 (setq vc-ignore-dir-regexp
       (format "%s\\|%s"
-                    vc-ignore-dir-regexp
-                    tramp-file-name-regexp))
+              vc-ignore-dir-regexp
+              tramp-file-name-regexp))
 
 (require 'tramp-sh)
 (setq tramp-inline-compress-start-size 1000)
@@ -476,6 +497,9 @@ See URL `http://stylelint.io/'."
 (global-set-key (kbd "C-c u") #'ffap-next-url)
 
 (global-set-key [remap dabbrev-expand] 'hippie-expand)
+
+;; https://git.savannah.gnu.org/cgit/emacs.git/tree/admin/notes/tree-sitter/starter-guide?h=feature/tree-sitter
+(require 'treesit)
 
 (defun ep/find-files (path criteria)
   "Search PATH for all files matching CRITERIA, a glob."
@@ -529,16 +553,16 @@ Recursively searches through DIRECTORY for CRITERIA (glob)."
 Optional SUBDIR to limit searches to a certain directory"
   (let ((regex regex)
         (path (or subdir (ep/-append-path
-                           (project-root
-                            (project-current))
-                           subdir))))
+                          (project-root
+                           (project-current))
+                          subdir))))
     (if-let ((found-files
-                (ep/find-files-ag regex
-                                  path)))
-      (xref--show-xrefs
-       (xref-matches-in-files regex
-                              found-files)
-       nil)
+              (ep/find-files-ag regex
+                                path)))
+        (xref--show-xrefs
+         (xref-matches-in-files regex
+                                found-files)
+         nil)
       (user-error "No files found"))))
 
 (defun ep/project-file-ag
@@ -570,10 +594,30 @@ Outputs the results to a dedicated buffer."
   "Send the current buffer to a bottom sidebar."
   (display-buffer-in-side-window (current-buffer) '((side . bottom))))
 
-(defun ep/aggregate-commits ()
-  "Show titles & messages for all commits on this branch."
+
+(require 'tramp)
+(declare-function ansi-color-apply-on-region "ansi-color")
+(defun ep/arc-diff ()
+  "Create an arc diff against master.
+Message is set to any unique commits on this branch."
   (interactive)
-  (magit-git-command-topdir "git log --reverse --format='### %s%n%n%b' ^master HEAD"))
+  ;; (setq-local temporary-file-directory (tramp-handle-temporary-file-directory))
+  (let ((tempfile (tramp-handle-make-nearby-temp-file "aggregate-commits" nil ".txt")))
+    (write-region  (ep/aggregate-commits)
+                   nil
+                   tempfile)
+    (shell-command
+     (format "%s \"%s\" %s" "arc diff --message-file " (file-remote-p tempfile 'localname) "master")
+     "*arc-diff*"
+     )
+    (with-current-buffer "*arc-diff*"
+      (ansi-color-apply-on-region (point-min) (point-max))
+      (comint-mode))))
+
+(defun ep/aggregate-commits ()
+  "Return titles & messages for all commits on this branch."
+  (interactive)
+  (shell-command-to-string "git log --reverse --format='%s%n%n%b' ^master HEAD"))
 
 (defun ep/frame= (frame-name frame)
   "Does the FRAME have the given FRAME-NAME?"
@@ -586,6 +630,31 @@ Outputs the results to a dedicated buffer."
    (seq-filter
     (lambda (x) (ep/frame= name x))
     (frame-list))))
+
+;;;###autoload
+(define-derived-mode lbl-ts-mode prog-mode "Lbl"
+  (when (treesit-ready-p 'lbl)
+    (treesit-parser-create 'lbl)
+    (setq-local treesit-font-lock-settings
+                (treesit-font-lock-rules
+                 :language 'lbl
+                 :feature 'keyword
+                 '((label) @font-lock-keyword-face)
+
+                 :language 'lbl
+                 :feature 'prefix
+                 :override t
+                 '((prefix (text)) @font-lock-comment-face)
+
+                 :language 'lbl
+                 :feature 'error
+                 :override t
+                 '((ERROR) @next-error)))
+  (setq-local treesit-font-lock-feature-list '((prefix) (keyword) (error)))
+  (treesit-major-mode-setup)))
+
+(if (treesit-ready-p 'typescript)
+    (add-to-list 'auto-mode-alist '("\\.lbl\\'" . lbl-ts-mode)))
 
 (provide 'init)
 ;;; init.el ends here
