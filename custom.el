@@ -13,12 +13,16 @@
  '(circe-track-faces-priorities '(circe-highlight-nick-face))
  '(company-dabbrev-downcase nil)
  '(connection-local-criteria-alist
-   '(((:machine "vagrant")
+   '(((:machine "lx-local")
+      lx-local-vars)
+     ((:machine "vagrant")
       vagrant-vars)
      ((:application tramp)
       tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
  '(connection-local-profile-alist
-   '((vagrant-vars
+   '((lx-local-vars
+      (company-gtags--executable-connection))
+     (vagrant-vars
       (company-gtags--executable-connection))
      (tramp-connection-local-darwin-ps-profile
       (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
@@ -116,10 +120,11 @@
  '(org-confirm-babel-evaluate nil)
  '(org-link-shell-confirm-function nil)
  '(package-selected-packages
-   '(better-jumper multiple-cursors copilot editorconfig async simple-httpd scss-mode scss tree-sitter-langs tree-sitter flycheck-clj-kondo all-the-icons dap-mode typescript-mode flycheck ivy ace-window button-lock slime browse-kill-ring nord-theme god-mode mode-line-bell ts-comint yafolding sqlformat elisp-mode elisp circe-notifications circe-color-nicks circe elisp-format js-mode vterm exwm web-mode cperl guru-mode doom-modeline solarized-theme yasnippet lsp-metals lsp-ivy lsp-ui lsp-mode sbt-mode scala-mode use-package ag tt-mode php-mode org-mime load-dir json-mode erc-hl-nicks bufler znc ng2-mode forge counsel company tide projectile smex which-key magit cider clojure-mode exec-path-from-shell paredit))
+   '(inf-clojure inspector markdown-toc deft orderless consult vertico better-jumper multiple-cursors copilot editorconfig async simple-httpd scss-mode scss tree-sitter-langs tree-sitter flycheck-clj-kondo all-the-icons dap-mode typescript-mode flycheck ivy ace-window button-lock slime browse-kill-ring nord-theme god-mode mode-line-bell ts-comint yafolding sqlformat elisp-mode elisp circe-notifications circe-color-nicks circe elisp-format js-mode vterm exwm web-mode cperl guru-mode doom-modeline solarized-theme yasnippet lsp-metals lsp-ivy lsp-ui lsp-mode sbt-mode scala-mode use-package ag tt-mode php-mode org-mime load-dir json-mode erc-hl-nicks bufler znc ng2-mode forge counsel company tide projectile smex which-key magit cider clojure-mode exec-path-from-shell paredit))
  '(projectile-globally-ignored-directories
    '(".idea" ".vscode" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".pijul" ".tox" ".svn" ".stack-work" ".ccls-cache" ".cache" ".clangd" "*node_modules" "*baseline" "*swagger-ui-dist"))
  '(projectile-globally-ignored-file-suffixes '("jar" "bin" "js.map"))
+ '(projectile-globally-ignored-files '("TAGS" "documentation.json"))
  '(safe-local-variable-values
    '((auto-revert-buffer-list-filter function magit-auto-revert-repository-buffer-p)
      (auto-revert-buffer-list-filter quote magit-auto-revert-repository-buffer-p)

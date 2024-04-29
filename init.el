@@ -78,8 +78,8 @@
 
 (use-package elisp-format
   :init (require 'elisp-format))
-(use-package cider
-  :pin melpa-stable)
+;; (use-package cider
+;;   :pin melpa-stable)
 (use-package company
   :init (global-company-mode))
 
@@ -100,13 +100,13 @@
   :bind (("C-x C-b" . bufler)))
 (use-package json-mode
   :hook (json-mode . flycheck-mode))
-(use-package ivy
-  :bind (("C-'" . 'avy-goto-char-2))
-  :init
-  (ivy-mode)
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-count-format "(%d/%d) ")
-  (global-set-key (kbd "C-s") 'swiper-isearch))
+;; (use-package ivy
+;;   :bind (("C-'" . 'avy-goto-char-2))
+;;   :init
+;;   (ivy-mode)
+;;   (setq ivy-use-virtual-buffers t)
+;;   (setq ivy-count-format "(%d/%d) ")
+;;   (global-set-key (kbd "C-s") 'swiper-isearch))
 (use-package flycheck
   :init
   (global-flycheck-mode)
@@ -145,18 +145,18 @@ See URL `http://stylelint.io/'."
     "flycheck errors"
     ("n" flycheck-next-error "next")
     ("p" flycheck-previous-error "previous")
-    ("f" tide-fix "typescript fix")
+    ("f" lsp-execute-code-action "typescript fix")
     ("RET" nil "cancel")))
 
-;; If you want fuzzy matching, check out:
-;; https://gitlab.com/com-informatimago/emacs/-/blob/master/pjb-clelp.el
-;; https://gitlab.com/com-informatimago/emacs/-/blob/master/pjb-sources.el#L3538
-;; Or maybe vertico + orderless?
-(use-package counsel
-  :init
-  (counsel-mode)
-  :bind (("M-x" . 'counsel-M-x)
-         ( "C-c k" . 'counsel-ag)))
+;; ;; If you want fuzzy matching, check out:
+;; ;; https://gitlab.com/com-informatimago/emacs/-/blob/master/pjb-clelp.el
+;; ;; https://gitlab.com/com-informatimago/emacs/-/blob/master/pjb-sources.el#L3538
+;; ;; Or maybe vertico + orderless?
+;; (use-package counsel
+;;   :init
+;;   (counsel-mode)
+;;   :bind (("M-x" . 'counsel-M-x)
+;;          ( "C-c k" . 'counsel-ag)))
 (use-package which-key
   :init (which-key-mode)
   :config (setq which-key-allow-imprecise-window-fit nil))
@@ -179,52 +179,17 @@ See URL `http://stylelint.io/'."
   :bind (:map projectile-mode-map
               ("s-p" . projectile-command-map)))
 
-(use-package tide
-  :after (company
-          flycheck)
-  :preface
-  (require 'tide)
-  (defun ep/ts-format ()
-    "Reformat the whole buffer without changing point."
-    (interactive)
-    (tide-format-region (point-min) (point-max)))
-
-  (defun setup-tide-mode ()
-    ;;; Must define our own as the tide-provided one doesn't trigger under typescript-tide-ts
-    (flycheck-define-generic-checker 'typescript-tide-ts
-      "A TypeScript syntax checker using tsserver."
-      :start #'tide-flycheck-start
-      :verify #'tide-flycheck-verify
-      :modes '(typescript-mode typescript-ts-mode)
-      :predicate #'tide-flycheck-predicate)
-    (setq-local flycheck-disabled-checkers '(typescript-tslint javascript-eslint))
-    (tide-setup)
-    (flycheck-mode +1)
-    (setq flycheck-check-syntax-automatically '(save mode-enabled))
-    (eldoc-mode +1)
-    ;; (tide-hl-identifier-mode +1)
-    (company-mode +1))
+(use-package typescript-ts-mode
   :mode ("\\.ts" . typescript-ts-mode)
-  :hook ((typescript-mode . setup-tide-mode)
-         (typescript-ts-mode . setup-tide-mode))
-  :bind (("C-c t f" . tide-fix)
-         ("C-c t o" . ep/ts-format) ;; I personally override this in a file not commited to this repo
-         ("C-c t r" . tide-rename-symbol)
-         ("C-c ."   . tide-documentation-at-point))
-  :config
-  (setq company-tooltip-align-annotations t)
-  (setq tide-format-options '(
-                              :insertSpaceAfterFunctionKeywordForAnonymousFunctions t
-                              :placeOpenBraceOnNewLineForFunctions nil
-                              :indentSize 2
-                              :tabSize 2
-                              :placeOpenBraceOnNewLineForFunctions nil
-                              :placeOpenBraceOnNewLineForControlBlocks nil)))
+  :bind (("C-c t f" . lsp-execute-code-action)))
+
 (use-package lsp-mode
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
   :init (setq lsp-keymap-prefix "C-c l")
 
   :hook
+  (typescript-ts-mode . lsp)
+  (typescript-mode . lsp)
   (ruby-mode . lsp)
   (scss-mode . lsp) ;; don't forget to M-x lsp-install-server RET css-ls RET
   (json-mode . lsp)
@@ -327,7 +292,7 @@ See URL `http://stylelint.io/'."
   :hook (god-local-mode . ep/push-mark-silent)
   :after (copilot ; so we can stomp copilot's tab keybinding in god mode
           flycheck
-          tide)
+          lsp-mode)
   :init (god-mode)
   :bind (
          ("RET" . ep-god-mode-off)
@@ -352,7 +317,13 @@ See URL `http://stylelint.io/'."
                                      :face-policy 'prepend))
   :hook ((vterm-mode . setup-buttonlock)
          (magit-process-mode . setup-buttonlock)
-         (comint-mode . setup-buttonlock)))
+         (comint-mode . setup-buttonlock)
+         (arc-mode . setup-buttonlock)))
+
+(use-package flyspell
+  ;; need to make it more specific, text-mode applies to too many modes like HTML+
+  ;; :hook ((text-mode . flyspell-mode))
+  )
 
 (use-package combobulate
   :preface
@@ -391,9 +362,151 @@ See URL `http://stylelint.io/'."
   :init (better-jumper-mode +1))
 
 
+(use-package vertico
+  :init
+  (vertico-mode))
+
+(use-package consult
+  ;; Replace bindings. Lazily loaded due by `use-package'.
+  :bind (;; C-c bindings in `mode-specific-map'
+         ("C-c M-x" . consult-mode-command)
+         ("C-c h" . consult-history)
+         ("C-c k" . consult-kmacro)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
+         ;; C-x bindings in `ctl-x-map'
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ;; M-g bindings in `goto-map'
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings in `search-map'
+         ("M-s d" . consult-find)                  ;; Alternative: consult-fd
+         ("M-s D" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("C-s" . isearch-forward)
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+
+  ;; The :init configuration is always executed (Not lazy)
+  :init
+
+  ;; Optionally configure the register formatting. This improves the register
+  ;; preview for `consult-register', `consult-register-load',
+  ;; `consult-register-store' and the Emacs built-ins.
+  (setq register-preview-delay 0.5
+        register-preview-function #'consult-register-format)
+
+  ;; Optionally tweak the register preview window.
+  ;; This adds thin lines, sorting and hides the mode line of the window.
+  (advice-add #'register-preview :override #'consult-register-window)
+
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+
+  ;; Configure other variables and modes in the :config section,
+  ;; after lazily loading the package.
+  :config
+
+  ;; Optionally configure preview. The default value
+  ;; is 'any, such that any key triggers the preview.
+  ;; (setq consult-preview-key 'any)
+  ;; (setq consult-preview-key "M-.")
+  ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+  (consult-customize
+   consult-theme :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   ;; :preview-key "M-."
+   :preview-key '(:debounce 0.4 any))
+
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  (setq consult-narrow-key "<") ;; "C-+"
+
+  ;; Optionally make narrowing help available in the minibuffer.
+  ;; You may want to use `embark-prefix-help-command' or which-key instead.
+  ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
+
+  ;; By default `consult-project-function' uses `project-root' from project.el.
+  ;; Optionally configure a different project root function.
+  ;;;; 1. project.el (the default)
+  ;; (setq consult-project-function #'consult--default-project--function)
+  ;;;; 2. vc.el (vc-root-dir)
+  ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
+  ;;;; 3. locate-dominating-file
+  ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
+  ;;;; 4. projectile.el (projectile-project-root)
+  ;; (autoload 'projectile-project-root "projectile")
+  ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
+  ;;;; 5. No project support
+  ;; (setq consult-project-function nil)
+)
+
+;; next ideas? vertico, consult, orderless, embark and marginalia
+
+(use-package orderless
+  :init
+  ;; Configure a custom style dispatcher (see the Consult wiki)
+  ;; (setq orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch)
+  ;;       orderless-component-separator #'orderless-escapable-split-on-space)
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
+
+(use-package deft
+  :bind ("C-c d" . deft)
+  :commands (deft)
+  :init (setq deft-directory "~/notes"
+                deft-extensions '("md" "org" "txt")))
+
+(use-package inf-clojure
+  :hook (clojure-mode . inf-clojure-minor-mode))
+
 (load "sexpers.el")
 (load "init-shell.el")
-(load "init-tide.el")
+;; (load "init-tide.el")
 (load "init-irc.el")
 
 (set-face-attribute 'default nil :height 140)
@@ -478,9 +591,6 @@ See URL `http://stylelint.io/'."
 (setq org-capture-templates
       '(("t" "Todo" entry (file+headline "~/notes.org" "Tasks")
          "* TODO %?\n  %i\n  %a")))
-
-(fset 'fix-next-tide-error
-      (kmacro-lambda-form [?\M-x ?f ?l ?y ?c ?h return ?\C-c ?t ?f] 0 "%d"))
 
 (setq create-lockfiles nil)
 
@@ -594,8 +704,15 @@ Outputs the results to a dedicated buffer."
   "Send the current buffer to a bottom sidebar."
   (display-buffer-in-side-window (current-buffer) '((side . bottom))))
 
+(defun ep/clear-read-only-buffer ()
+  "Clear the current buffer, even if it is read-only."
+  (let ((inhibit-read-only t))
+    (delete-region (point-min) (point-max))))
 
 (require 'tramp)
+(define-derived-mode arc-mode nil
+  "Arc"
+  "Mode for arcanist output.")
 (declare-function ansi-color-apply-on-region "ansi-color")
 (defun ep/arc-diff ()
   "Create an arc diff against master.
@@ -611,8 +728,10 @@ Message is set to any unique commits on this branch."
      "*arc-diff*"
      )
     (with-current-buffer "*arc-diff*"
+      (switch-to-buffer "*arc-diff*")
       (ansi-color-apply-on-region (point-min) (point-max))
-      (comint-mode))))
+      (setq buffer-read-only t)
+      (arc-mode))))
 
 (defun ep/aggregate-commits ()
   "Return titles & messages for all commits on this branch."
@@ -655,6 +774,15 @@ Message is set to any unique commits on this branch."
 
 (if (treesit-ready-p 'typescript)
     (add-to-list 'auto-mode-alist '("\\.lbl\\'" . lbl-ts-mode)))
+
+(defun ep/copy-full-path-to-kill-ring ()
+  "Copy the full path of the current buffer's file to the kill ring."
+  (interactive)
+  (if (buffer-file-name)
+      (progn
+        (kill-new (file-truename (buffer-file-name)))
+        (message "Copied buffer's full path to kill ring: %s" (buffer-file-name)))
+    (message "Current buffer is not visiting a file!")))
 
 (provide 'init)
 ;;; init.el ends here
